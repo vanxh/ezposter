@@ -3,10 +3,11 @@ import Image from "next/image";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 
 import Logo from "@/public/ezposter.png";
+import ThemeButton from "./ThemeButton";
 
 export default function Navbar() {
   return (
-    <nav className="mb-auto flex w-full flex-row items-center justify-between gap-x-4 px-4 py-2">
+    <nav className="mb-auto flex w-full flex-row items-center justify-between gap-x-4 px-4 py-4">
       <Link href={"/"} className="flex flex-row items-center gap-x-2">
         <Image
           src={Logo}
@@ -21,7 +22,8 @@ export default function Navbar() {
         </h1>
       </Link>
 
-      <div className="flex flex-row gap-x-2">
+      <div className="flex flex-row gap-x-4">
+        <ThemeButton />
         <SignedIn>
           <UserButton afterSignOutUrl="/" />
         </SignedIn>
