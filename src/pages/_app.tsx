@@ -1,19 +1,13 @@
 import { type AppType } from "next/app";
-import { Poppins } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 
 import { api } from "@/utils/api";
 import { cn } from "@/utils/tailwind";
+import { poppins } from "@/utils/fonts";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
-import "cal-sans";
 import "@/styles/globals.css";
-
-const poppins = Poppins({
-  weight: ["400", "500", "600", "700", "800"],
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-poppins",
-});
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
@@ -24,7 +18,9 @@ const MyApp: AppType = ({ Component, pageProps }) => {
           poppins.variable
         )}
       >
+        <Navbar />
         <Component {...pageProps} />
+        <Footer />
       </div>
     </ClerkProvider>
   );
