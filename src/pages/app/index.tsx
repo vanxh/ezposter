@@ -11,7 +11,9 @@ const Page: NextPage = () => {
     <div className="container flex flex-row gap-x-6">
       <AppNavBar />
 
-      <div className="text-lg">Your page&apos;s content can go here.</div>
+      <div className="flex h-full w-full flex-col md:h-[80vh]">
+        Your page&apos;s content can go here.
+      </div>
     </div>
   );
 };

@@ -23,7 +23,7 @@ export const AppNavBarItem = ({
     <Link
       href={href}
       className={cn(
-        "flex h-max w-max items-center rounded-full p-3 transition-all ease-in-out hover:bg-secondary md:w-full md:rounded-lg",
+        "flex h-max w-max min-w-max items-center rounded-full p-3 transition-all ease-in-out hover:bg-secondary md:w-full md:rounded-lg",
         active ? "bg-secondary" : "bg-transparent"
       )}
     >
@@ -38,7 +38,7 @@ const Sidebar = ({ children }: { children: React.ReactNode }) => {
   if (!user) return null;
 
   return (
-    <nav className="hidden h-[70vh] flex-col gap-y-6 md:flex">
+    <nav className="hidden h-[80vh] flex-col gap-y-6 md:flex">
       <div className="md:flex md:flex-col md:gap-y-4">
         <Image
           src={user.profileImageUrl}
