@@ -5,6 +5,8 @@ export const UserModel = z.object({
   id: z.number().int(),
   createdAt: z.date(),
   updatedAt: z.date(),
+  clerkId: z.string(),
+  email: z.string().nullish(),
   premiumTier: z.nativeEnum(PremiumTier),
   premiumValidUntil: z.date().nullish(),
   gameflipApiKey: z.string().nullish(),
