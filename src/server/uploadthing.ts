@@ -1,22 +1,21 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next-legacy";
-import { currentUser } from "@clerk/nextjs";
+// import { auth } from "@clerk/nextjs";
 
 const f = createUploadthing();
 
 export const ourFileRouter = {
   imageUploader: f({ image: { maxFileSize: "4MB" } })
-    .middleware(async () => {
-      const user = await currentUser();
+    // .middleware(() => {
+    //   const user = auth();
 
-      if (!user) {
-        throw new Error("You must be logged in to upload files");
-      }
+    //   if (!user) {
+    //     throw new Error("You must be logged in to upload files");
+    //   }
 
-      return { userId: user.id };
-    })
+    //   return { userId: user.userId };
+    // })
     .onUploadComplete(({ metadata, file }) => {
-      console.log("Upload complete for userId:", metadata.userId);
-
+      // console.log("Upload complete for userId:", metadata.userId);
       console.log("file url", file.url);
     }),
 } satisfies FileRouter;

@@ -5,7 +5,7 @@ const config = {
   reactStrictMode: true,
 
   images: {
-    domains: ["images.clerk.dev"],
+    domains: ["images.clerk.dev", "uploadthing.com"],
   },
 
   i18n: {
