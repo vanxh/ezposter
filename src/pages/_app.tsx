@@ -1,3 +1,4 @@
+import Head from "next/head";
 import { type AppType } from "next/app";
 import { ThemeProvider } from "next-themes";
 import { ClerkProvider } from "@clerk/nextjs";
@@ -14,6 +15,17 @@ const MyApp: AppType = ({ Component, pageProps }) => {
   return (
     <ThemeProvider attribute="class">
       <ClerkProvider {...pageProps}>
+        <Head>
+          <title>EZ Poster</title>
+          <meta name="description" content="Autopost your gameflip listings" />
+          <link rel="icon" href="/favicon.ico" />
+          <meta property="og:title" content="EZ Poster" />
+          <meta
+            property="og:description"
+            content="Autopost your gameflip listings"
+          />
+          <meta property="og:image" content="/api/og" />
+        </Head>
         <div
           className={cn(
             "flex h-[100vh] w-full flex-col items-center justify-center font-poppins",
