@@ -1,5 +1,6 @@
 import * as z from "zod"
 import { PremiumTier } from "@prisma/client"
+import { CompleteGameflipListing, RelatedGameflipListingModel } from "./index"
 
 export const UserModel = z.object({
   id: z.number().int(),
@@ -18,3 +19,16 @@ export const UserModel = z.object({
   nPosted: z.number().int(),
   nPurged: z.number().int(),
 })
+
+export interface CompleteUser extends z.infer<typeof UserModel> {
+  GameflipListing: CompleteGameflipListing[]
+}
+
+/**
+ * RelatedUserModel contains all relations on your model in addition to the scalars
+ *
+ * NOTE: Lazy required in case of potential circular dependencies within schema
+ */
+export const RelatedUserModel: z.ZodSchema<CompleteUser> = z.lazy(() => UserModel.extend({
+  GameflipListing: RelatedGameflipListingModel.array(),
+}))

@@ -57,6 +57,8 @@ model User {
 
     nPosted Int @default(0)
     nPurged Int @default(0)
+
+    GameflipListing GameflipListing[]
 }
 
 enum PremiumTier {
@@ -69,4 +71,23 @@ model GameflipListing {
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+
+    kind               String @default("item")
+    name               String
+    description        String
+    category           String @default("DIGITAL_INGAME")
+    platform           String @default("unknown")
+    upc                String @default("GFFORTNITE")
+    priceInCents       Int
+    accept_currency    String @default("USD")
+    shippingWithinDays Int    @default(3)
+    expiresWithinDays  Int    @default(30)
+    tags               Json
+
+    autoPost Boolean @default(true)
+
+    user   User @relation(references: [id], fields: [userId])
+    userId Int
+
+    @@index([userId])
 }
