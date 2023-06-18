@@ -44,7 +44,7 @@ model User {
     clerkId String  @unique
     email   String?
 
-    premiumTier       PremiumTier
+    premiumTier       PremiumTier @default(BASIC)
     premiumValidUntil DateTime?
 
     gameflipApiKey    String?
