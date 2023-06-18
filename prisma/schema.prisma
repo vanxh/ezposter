@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
     provider        = "prisma-client-js"
     previewFeatures = ["jsonProtocol"]
@@ -83,6 +80,7 @@ model GameflipListing {
     shippingWithinDays Int    @default(3)
     expiresWithinDays  Int    @default(30)
     tags               Json
+    images             Json // [{ url: string, isCoverImage: boolean }]
 
     autoPost Boolean @default(true)
 

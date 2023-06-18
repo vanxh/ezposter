@@ -22,6 +22,7 @@ export const GameflipListingModel = z.object({
   shippingWithinDays: z.number().int(),
   expiresWithinDays: z.number().int(),
   tags: jsonSchema,
+  images: jsonSchema,
   autoPost: z.boolean(),
   userId: z.number().int(),
 })
