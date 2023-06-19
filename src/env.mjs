@@ -10,6 +10,8 @@ export const env = createEnv({
     UPLOADTHING_APP_ID: z.string(),
     QSTASH_CURRENT_SIGNING_KEY: z.string(),
     QSTASH_NEXT_SIGNING_KEY: z.string(),
+    QSTASH_URL: z.string().url(),
+    QSTASH_TOKEN: z.string(),
   },
 
   client: {
@@ -36,6 +38,8 @@ export const env = createEnv({
     UPLOADTHING_APP_ID: process.env.UPLOADTHING_APP_ID,
     QSTASH_CURRENT_SIGNING_KEY: process.env.QSTASH_CURRENT_SIGNING_KEY,
     QSTASH_NEXT_SIGNING_KEY: process.env.QSTASH_NEXT_SIGNING_KEY,
+    QSTASH_URL: process.env.QSTASH_URL,
+    QSTASH_TOKEN: process.env.QSTASH_TOKEN,
   },
 
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,
