@@ -25,6 +25,8 @@ const formSchema = z.object({
   autoPost: z.boolean(),
   postTime: z.number().min(20), // in seconds
   purgeOlderThan: z.number().min(60), // in minutes
+  gameflipApiKey: z.string().optional(),
+  gameflipApiSecret: z.string().optional(),
 });
 
 const Page: NextPage = () => {
@@ -33,7 +35,10 @@ const Page: NextPage = () => {
       form.setValue("autoPost", data.autoPost);
       form.setValue("postTime", data.postTime);
       form.setValue("purgeOlderThan", data.purgeOlderThan);
+      form.setValue("gameflipApiKey", data.gameflipApiKey ?? "");
+      form.setValue("gameflipApiSecret", data.gameflipApiSecret ?? "");
     },
+    refetchOnWindowFocus: false,
   });
   const { data: listings } = api.user.listing.summary.useQuery();
 
@@ -50,6 +55,19 @@ const Page: NextPage = () => {
       },
     });
 
+  const { mutateAsync: connectGameflip, isLoading: connectGameflipLoading } =
+    api.user.connectGameflip.useMutation({
+      onSuccess: () => {
+        showToast(`Gameflip profile connected!`);
+        void refetch();
+      },
+      onError: (e) => {
+        showToast(
+          `${e.message ?? e ?? "Unknown error while connecting gameflip"}`
+        );
+      },
+    });
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {},
@@ -57,6 +75,18 @@ const Page: NextPage = () => {
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     void updateSettings(data);
+
+    if (
+      data.gameflipApiKey &&
+      data.gameflipApiSecret &&
+      data.gameflipApiKey !== user?.gameflipApiKey &&
+      data.gameflipApiSecret !== user?.gameflipApiSecret
+    ) {
+      void connectGameflip({
+        gameflipApiKey: data.gameflipApiKey,
+        gameflipApiSecret: data.gameflipApiSecret,
+      });
+    }
   };
 
   return (
@@ -182,6 +212,43 @@ const Page: NextPage = () => {
                 </FormItem>
               )}
             />
+
+            <FormField
+              control={form.control}
+              name="gameflipApiKey"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Gameflip API Key</FormLabel>
+                  <FormControl>
+                    <div>
+                      <Input placeholder="Enter Gameflip API Key" {...field} />
+                    </div>
+                  </FormControl>
+                  <FormDescription>Your Gameflip API Key.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="gameflipApiSecret"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Gameflip API Secret</FormLabel>
+                  <FormControl>
+                    <div>
+                      <Input
+                        placeholder="Enter Gameflip API Secret"
+                        {...field}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormDescription>Your Gameflip API Secret.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
 
           <div className="flex w-full flex-row gap-x-4">
@@ -196,7 +263,7 @@ const Page: NextPage = () => {
             <Button
               type="submit"
               className="w-full md:w-auto"
-              disabled={!user || !isPremium(user)}
+              disabled={!user || !isPremium(user) || connectGameflipLoading}
               loading={isLoading}
             >
               {isLoading ? "Submitting..." : "Submit"}

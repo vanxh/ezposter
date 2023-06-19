@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { listingRouter } from "@/server/api/routers/user/listing";
+import { getProfile } from "@/utils/gfapi";
 
 export const userRouter = createTRPCRouter({
   listing: listingRouter,
@@ -26,5 +27,30 @@ export const userRouter = createTRPCRouter({
       });
 
       return update;
+    }),
+
+  connectGameflip: protectedProcedure
+    .input(
+      z.object({
+        gameflipApiKey: z.string(),
+        gameflipApiSecret: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const gameflipProfile = await getProfile("me", input);
+
+      const update = await ctx.prisma.user.update({
+        where: { id: ctx.user.id },
+        data: {
+          gameflipApiKey: input.gameflipApiKey,
+          gameflipApiSecret: input.gameflipApiSecret,
+          gameflipId: gameflipProfile.owner,
+        },
+      });
+
+      return {
+        gameflipProfile,
+        user: update,
+      };
     }),
 });
