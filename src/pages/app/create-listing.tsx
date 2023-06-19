@@ -29,6 +29,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { showToast } from "@/components/ui/use-toast";
 import { Combobox } from "@/components/ui/combobox";
+import { Separator } from "@/components/ui/separator";
 import ImageUploader from "@/components/ImageUploader";
 
 const formSchema = z.object({
@@ -97,7 +98,12 @@ const Page: NextPage = () => {
   };
 
   return (
-    <div className="container mx-auto flex flex-col justify-start">
+    <div className="container mx-auto flex flex-col justify-start gap-y-6">
+      <div className="flex flex-col gap-y-2">
+        <h3 className="text-lg font-semibold">Create a Listing</h3>
+        <Separator />
+      </div>
+
       <Form {...form}>
         <form
           // eslint-disable-next-line @typescript-eslint/no-misused-promises

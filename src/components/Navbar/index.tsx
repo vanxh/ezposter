@@ -1,8 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import { MenuSquare } from "lucide-react";
 
 import Logo from "@/public/ezposter.png";
+import { api } from "@/utils/api";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,9 +12,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import ThemeButton from "./ThemeButton";
-import { MenuSquare } from "lucide-react";
 
 export default function Navbar() {
+  const { data: user } = api.user.me.useQuery();
+
   return (
     <nav className="top-0 flex w-full flex-row items-center justify-between gap-x-4 px-4 py-4">
       <Link href={"/"} className="flex flex-row items-center gap-x-2">
@@ -37,6 +40,11 @@ export default function Navbar() {
               <MenuSquare className="h-6 w-6" />
             </DropdownMenuTrigger>
             <DropdownMenuContent>
+              {user?.isAdmin && (
+                <DropdownMenuItem>
+                  <Link href="/app/admin">Admin</Link>
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem>
                 <Link href="/app">Dashboard</Link>
               </DropdownMenuItem>

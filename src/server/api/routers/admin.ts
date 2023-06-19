@@ -5,6 +5,32 @@ import { v4 as uuidv4 } from "uuid";
 import { adminProcedure, createTRPCRouter } from "@/server/api/trpc";
 
 export const adminRouter = createTRPCRouter({
+  getPremiumKeys: adminProcedure
+    .input(
+      z.object({
+        page: z.number().min(1).default(1),
+        pageSize: z.number().min(15).max(100).default(15),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const keys = await ctx.prisma.premiumKey.findMany({
+        skip: (input.page - 1) * input.pageSize,
+        take: input.pageSize,
+      });
+
+      const nKeys = await ctx.prisma.premiumKey.count();
+
+      return {
+        premiumKeys: keys,
+        pagination: {
+          page: input.page,
+          pageSize: input.pageSize,
+          totalPages: Math.ceil(nKeys / input.pageSize),
+          totalItems: nKeys,
+        },
+      };
+    }),
+
   createPremiumKey: adminProcedure
     .input(
       z.object({

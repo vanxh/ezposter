@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { showToast } from "@/components/ui/use-toast";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 
 const formSchema = z.object({
   autoPost: z.boolean(),
@@ -90,7 +91,12 @@ const Page: NextPage = () => {
   };
 
   return (
-    <div className="container mx-auto flex flex-col justify-start">
+    <div className="container mx-auto flex flex-col justify-start gap-y-6">
+      <div className="flex flex-col gap-y-2">
+        <h3 className="text-lg font-semibold">Settings</h3>
+        <Separator />
+      </div>
+
       <Form {...form}>
         <form
           // eslint-disable-next-line @typescript-eslint/no-misused-promises
