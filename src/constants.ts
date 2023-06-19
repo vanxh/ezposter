@@ -71,5 +71,10 @@ export const MAX_LISTINGS_PER_USER = {
   [PremiumTier.PREMIUM]: 500,
 };
 
+export const MIN_POST_INTERVAL_IN_SECONDS = {
+  [PremiumTier.BASIC]: 60,
+  [PremiumTier.PREMIUM]: 20,
+};
+
 export const GAMEFLIP_API_BASE_URL =
   "https://production-gameflip.fingershock.com/api/v1";

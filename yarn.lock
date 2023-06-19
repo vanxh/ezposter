@@ -85,6 +85,11 @@
   dependencies:
     csstype "3.1.1"
 
+"@deno/shim-crypto@~0.3.0":
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/@deno/shim-crypto/-/shim-crypto-0.3.1.tgz#416155b2b6f9ad728f80ebcb422c803efc1023c2"
+  integrity sha512-ed4pNnfur6UbASEgF34gVxR9p7Mc3qF+Ygbmjiil8ws5IhNFhPDFy5vE5hQAUA9JmVsSxXPcVLM5Rf8LOZqQ5Q==
+
 "@eslint-community/eslint-utils@^4.2.0":
   version "4.4.0"
   resolved "https://registry.npmjs.org/@eslint-community/eslint-utils/-/eslint-utils-4.4.0.tgz"
@@ -1300,6 +1305,13 @@
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/@uploadthing/shared/-/shared-5.0.0.tgz#bbabf33433cf604fa797e1971ede0f4749992bbe"
   integrity sha512-Owr/RbSZgThcjZWWy6xTcmRH6jNcCfTGtrH3jAftA1nlGW1g4FzrdTZIHB2fdjZ5qJJ2KoyY3cPY1wEdE4FjaQ==
+
+"@upstash/qstash@^0.3.6":
+  version "0.3.6"
+  resolved "https://registry.yarnpkg.com/@upstash/qstash/-/qstash-0.3.6.tgz#1407f6f6fc1785d21497d31cbaf0a771946fa59c"
+  integrity sha512-NKN4jbPhB5lfHoSIaU7AuQ3F+yGS20e/FBRiUuPetcKoi354wHhKj9AJFfkFT5SSeLq0XEsXRNynm8gqCS4HjQ==
+  dependencies:
+    "@deno/shim-crypto" "~0.3.0"
 
 "@vercel/og@^0.5.7":
   version "0.5.7"

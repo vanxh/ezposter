@@ -4,6 +4,7 @@ import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { listingRouter } from "@/server/api/routers/user/listing";
 import { getProfile } from "@/utils/gfapi";
 import { isPremium } from "@/utils/db";
+import { MIN_POST_INTERVAL_IN_SECONDS } from "@/constants";
 
 export const userRouter = createTRPCRouter({
   listing: listingRouter,
@@ -19,6 +20,21 @@ export const userRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      if (input.autoPost && !isPremium(ctx.user)) {
+        throw new Error("You need to be premium to use auto post");
+      }
+
+      if (
+        input.postTime &&
+        input.postTime < MIN_POST_INTERVAL_IN_SECONDS[ctx.user.premiumTier]
+      ) {
+        throw new Error(
+          `Minimum post interval for your tier is ${
+            MIN_POST_INTERVAL_IN_SECONDS[ctx.user.premiumTier]
+          } seconds`
+        );
+      }
+
       const update = await ctx.prisma.user.update({
         where: { id: ctx.user.id },
         data: {
