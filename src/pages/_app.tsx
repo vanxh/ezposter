@@ -30,7 +30,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
 
         <div
           className={cn(
-            "flex h-[100vh] w-full flex-col items-center justify-center font-poppins",
+            "flex min-h-[100vh] w-full flex-col items-center justify-center font-poppins",
             poppins.variable
           )}
         >

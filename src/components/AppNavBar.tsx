@@ -60,7 +60,7 @@ const Sidebar = ({ children }: { children: React.ReactNode }) => {
 
 const BottomBar = ({ children }: { children: React.ReactNode }) => {
   return (
-    <nav className="fixed bottom-0 left-0 mb-3 flex w-full flex-row items-center justify-around gap-x-6 md:hidden">
+    <nav className="fixed bottom-0 left-0 flex w-full flex-row items-center justify-around gap-x-6 rounded-t-lg bg-background py-3 md:hidden">
       {children}
     </nav>
   );
