@@ -219,7 +219,6 @@ const Page: NextPage = () => {
                         placeholder="Enter listing tags."
                         value={tagInput}
                         onChange={(e) => {
-                          console.log(e.target.value);
                           setTagInput(e.target.value);
                         }}
                         onKeyDown={(e) => {

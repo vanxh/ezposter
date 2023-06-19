@@ -1,12 +1,12 @@
 import Head from "next/head";
 import { type AppType } from "next/app";
 import { ThemeProvider } from "next-themes";
-import { ClerkProvider } from "@clerk/nextjs";
 
 import { api } from "@/utils/api";
 import { cn } from "@/utils/tailwind";
 import { poppins } from "@/utils/fonts";
 import { Toaster } from "@/components/ui/toaster";
+import CustomClerkProvider from "@/components/CustomClerkProvider";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -15,7 +15,7 @@ import "@/styles/globals.css";
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
     <ThemeProvider attribute="class">
-      <ClerkProvider {...pageProps}>
+      <CustomClerkProvider {...pageProps}>
         <Head>
           <title>EZ Poster</title>
           <meta name="description" content="Autopost your gameflip listings" />
@@ -40,7 +40,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
         </div>
 
         <Toaster />
-      </ClerkProvider>
+      </CustomClerkProvider>
     </ThemeProvider>
   );
 };
