@@ -3,7 +3,14 @@ import Image from "next/image";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 
 import Logo from "@/public/ezposter.png";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import ThemeButton from "./ThemeButton";
+import { MenuSquare } from "lucide-react";
 
 export default function Navbar() {
   return (
@@ -24,6 +31,24 @@ export default function Navbar() {
 
       <div className="flex flex-row gap-x-4">
         <ThemeButton />
+        <SignedIn>
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <MenuSquare className="h-6 w-6" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem>
+                <Link href="/app">Dashboard</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link href="/app/settings">Settings</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link href="/app/create-listing">Create Listing</Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </SignedIn>
         <SignedIn>
           <UserButton afterSignOutUrl="/" />
         </SignedIn>
