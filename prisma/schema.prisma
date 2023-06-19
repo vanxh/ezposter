@@ -57,6 +57,7 @@ model User {
     nPurged Int @default(0)
 
     GameflipListing GameflipListing[]
+    PremiumKey      PremiumKey[]
 }
 
 enum PremiumTier {
@@ -90,4 +91,20 @@ model GameflipListing {
 
     @@index([userId])
     @@index([userId, autoPost])
+}
+
+model PremiumKey {
+    id Int @id @default(autoincrement())
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    key      String      @unique
+    tier     PremiumTier
+    duration Int         @default(30) // in days
+
+    usedBy   User? @relation(fields: [usedById], references: [id])
+    usedById Int?
+
+    @@index([usedById])
 }

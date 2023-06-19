@@ -1,6 +1,6 @@
 import * as z from "zod"
 import { PremiumTier } from "@prisma/client"
-import { CompleteGameflipListing, RelatedGameflipListingModel } from "./index"
+import { CompleteGameflipListing, RelatedGameflipListingModel, CompletePremiumKey, RelatedPremiumKeyModel } from "./index"
 
 export const UserModel = z.object({
   id: z.number().int(),
@@ -23,6 +23,7 @@ export const UserModel = z.object({
 
 export interface CompleteUser extends z.infer<typeof UserModel> {
   GameflipListing: CompleteGameflipListing[]
+  PremiumKey: CompletePremiumKey[]
 }
 
 /**
@@ -32,4 +33,5 @@ export interface CompleteUser extends z.infer<typeof UserModel> {
  */
 export const RelatedUserModel: z.ZodSchema<CompleteUser> = z.lazy(() => UserModel.extend({
   GameflipListing: RelatedGameflipListingModel.array(),
+  PremiumKey: RelatedPremiumKeyModel.array(),
 }))
