@@ -40,7 +40,7 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
   },
 });
 
-const isAuthed = t.middleware(async ({ next, ctx }) => {
+const isAuthedMiddleware = t.middleware(async ({ next, ctx }) => {
   if (!ctx.auth.userId) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
@@ -71,7 +71,7 @@ const isAuthed = t.middleware(async ({ next, ctx }) => {
   });
 });
 
-export const isPremiumMiddleware = t.middleware(async ({ next, ctx }) => {
+const isPremiumMiddleware = t.middleware(async ({ next, ctx }) => {
   if (!ctx.user || !isPremium(ctx.user)) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
@@ -82,7 +82,24 @@ export const isPremiumMiddleware = t.middleware(async ({ next, ctx }) => {
   return next();
 });
 
+const isAdminMiddleware = t.middleware(async ({ next, ctx }) => {
+  if (!ctx.user?.isAdmin) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "You must be an admin to perform this action.",
+    });
+  }
+
+  return next();
+});
+
 export const createTRPCRouter = t.router;
 
 export const publicProcedure = t.procedure;
-export const protectedProcedure = t.procedure.use(isAuthed);
+export const protectedProcedure = t.procedure.use(isAuthedMiddleware);
+export const premiumProcedure = t.procedure
+  .use(isAuthedMiddleware)
+  .use(isPremiumMiddleware);
+export const adminProcedure = t.procedure
+  .use(isAuthedMiddleware)
+  .use(isAdminMiddleware);

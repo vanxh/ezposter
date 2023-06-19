@@ -2,7 +2,7 @@ import { z } from "zod";
 import {
   createTRPCRouter,
   protectedProcedure,
-  isPremiumMiddleware,
+  premiumProcedure,
 } from "@/server/api/trpc";
 
 import {
@@ -53,8 +53,7 @@ export const listingRouter = createTRPCRouter({
       };
     }),
 
-  create: protectedProcedure
-    .use(isPremiumMiddleware)
+  create: premiumProcedure
     .input(
       z.object({
         name: z.string().min(1).max(100),
