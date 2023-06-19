@@ -253,20 +253,12 @@ const Page: NextPage = () => {
 
           <div className="flex w-full flex-row gap-x-4">
             <Button
-              variant="secondary"
-              type="reset"
-              onClick={() => void form.reset()}
-              className="ml-auto w-full md:w-auto"
-            >
-              Reset
-            </Button>
-            <Button
               type="submit"
-              className="w-full md:w-auto"
+              className="ml-auto w-full md:w-auto"
               disabled={!user || !isPremium(user) || connectGameflipLoading}
               loading={isLoading}
             >
-              {isLoading ? "Submitting..." : "Submit"}
+              {isLoading ? "Saving..." : "Save"}
             </Button>
           </div>
         </form>
