@@ -2,7 +2,7 @@ import { type NextPage } from "next";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { formatDuration, intervalToDuration } from "date-fns";
+import { format, formatDuration, intervalToDuration } from "date-fns";
 
 import { api } from "@/utils/api";
 import { isPremium } from "@/utils/db";
@@ -28,6 +28,10 @@ const formSchema = z.object({
   purgeOlderThan: z.number().min(60), // in minutes
   gameflipApiKey: z.string().optional(),
   gameflipApiSecret: z.string().optional(),
+});
+
+const premiumFormSchema = z.object({
+  key: z.string(),
 });
 
 const Page: NextPage = () => {
@@ -88,6 +92,31 @@ const Page: NextPage = () => {
         gameflipApiSecret: data.gameflipApiSecret,
       });
     }
+  };
+
+  const { mutateAsync: redeemPremiumKey, isLoading: redeemPremiumLoading } =
+    api.user.redeemPremiumKey.useMutation({
+      onSuccess: () => {
+        showToast(`Redeemed premium key!`);
+        premiumForm.reset();
+        void refetch();
+      },
+      onError: (e) => {
+        showToast(
+          `${e.message ?? e ?? "Unknown error while redeeming premium"}`
+        );
+      },
+    });
+
+  const premiumForm = useForm<z.infer<typeof premiumFormSchema>>({
+    resolver: zodResolver(premiumFormSchema),
+    defaultValues: {},
+  });
+
+  const onPremiumSubmit = (data: z.infer<typeof premiumFormSchema>) => {
+    void redeemPremiumKey({
+      key: data.key.replace(/ /g, ""),
+    });
   };
 
   return (
@@ -265,6 +294,72 @@ const Page: NextPage = () => {
               loading={isLoading}
             >
               {isLoading ? "Saving..." : "Save"}
+            </Button>
+          </div>
+        </form>
+      </Form>
+
+      <div className="flex flex-col gap-y-2">
+        <h3 className="text-lg font-semibold">Premium</h3>
+        <Separator />
+      </div>
+
+      <Form {...premiumForm}>
+        <form
+          // eslint-disable-next-line @typescript-eslint/no-misused-promises
+          onSubmit={premiumForm.handleSubmit(onPremiumSubmit)}
+          className="space-y-6"
+        >
+          <div className="space-y-2">
+            <Label>Premium Tier</Label>
+            <Input value={user?.premiumTier} readOnly />
+            <FormDescription>
+              Tier of your premium subscription.
+            </FormDescription>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Premium Until</Label>
+            <Input
+              value={
+                user?.premiumValidUntil
+                  ? format(new Date(user?.premiumValidUntil), "PPpp")
+                  : undefined
+              }
+              readOnly
+            />
+            <FormDescription>
+              Date and time your premium subscription is valid until.
+            </FormDescription>
+          </div>
+
+          <FormField
+            control={premiumForm.control}
+            name="key"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Premium Key</FormLabel>
+                <FormControl>
+                  <div>
+                    <Input placeholder="Enter Premium Key" {...field} />
+                  </div>
+                </FormControl>
+                <FormDescription>
+                  Premium keys are used to redeem EZPoster premium.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className="flex w-full flex-row gap-x-4">
+            <Button
+              type="submit"
+              className="ml-auto w-full md:w-auto"
+              disabled={!user || redeemPremiumLoading}
+              loading={isLoading}
+            >
+              {isLoading ? "Redeeming..." : "Redeem"}
             </Button>
           </div>
         </form>

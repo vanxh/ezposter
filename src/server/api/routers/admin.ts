@@ -9,10 +9,11 @@ export const adminRouter = createTRPCRouter({
     .input(
       z.object({
         page: z.number().min(1).default(1),
-        pageSize: z.number().min(15).max(100).default(15),
+        pageSize: z.number().min(10).max(50).default(10),
       })
     )
     .query(async ({ ctx, input }) => {
+      console.log(input);
       const keys = await ctx.prisma.premiumKey.findMany({
         skip: (input.page - 1) * input.pageSize,
         take: input.pageSize,
@@ -45,6 +46,16 @@ export const adminRouter = createTRPCRouter({
           tier,
           duration,
         },
+      });
+
+      return premiumKey;
+    }),
+
+  deletePremiumKey: adminProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input: { id } }) => {
+      const premiumKey = await ctx.prisma.premiumKey.delete({
+        where: { id },
       });
 
       return premiumKey;

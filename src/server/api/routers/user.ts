@@ -67,7 +67,7 @@ export const userRouter = createTRPCRouter({
         where: { key: input.key },
       });
 
-      if (!premiumKey) {
+      if (!premiumKey || premiumKey.usedById) {
         throw new Error("Invalid key");
       }
 
@@ -96,6 +96,13 @@ export const userRouter = createTRPCRouter({
         data: {
           premiumValidUntil,
           premiumTier: premiumKey.tier,
+        },
+      });
+
+      await ctx.prisma.premiumKey.update({
+        where: { key: input.key },
+        data: {
+          usedById: ctx.user.id,
         },
       });
 

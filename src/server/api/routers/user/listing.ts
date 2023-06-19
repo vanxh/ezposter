@@ -28,7 +28,7 @@ export const listingRouter = createTRPCRouter({
     .input(
       z.object({
         page: z.number().min(1).default(1),
-        pageSize: z.number().min(15).max(100).default(15),
+        pageSize: z.number().min(10).max(50).default(10),
       })
     )
     .query(async ({ ctx, input }) => {

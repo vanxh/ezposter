@@ -4,8 +4,11 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type ColumnDef } from "@tanstack/react-table";
 import { type PremiumKey, PremiumTier } from "@prisma/client";
+import { format } from "date-fns";
+import { Trash } from "lucide-react";
 
 import { api } from "@/utils/api";
+import { cn } from "@/utils/tailwind";
 import {
   Form,
   FormControl,
@@ -19,19 +22,35 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { showToast } from "@/components/ui/use-toast";
 import { Combobox } from "@/components/ui/combobox";
-import { DataTableColumnHeader } from "@/components/ui/datatable";
 import { DataTable } from "@/components/ui/data-table";
+import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import { Separator } from "@/components/ui/separator";
 
 const formSchema = z.object({
+  premiumKeysPagination: z.object({
+    page: z.number().min(1).max(1000).default(1).optional(),
+    pageSize: z.number().min(10).max(50).default(10).optional(),
+  }),
   duration: z.number().min(1).max(365),
   tier: z.nativeEnum(PremiumTier),
 });
 
 const Page: NextPage = () => {
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {},
+  });
+
+  const onSubmit = (data: z.infer<typeof formSchema>) => {
+    void createPremiumKey(data);
+  };
+
   const { data: user } = api.user.me.useQuery();
   const { data: premiumKeysData, refetch: refetchPremiumKeys } =
-    api.admin.getPremiumKeys.useQuery({});
+    api.admin.getPremiumKeys.useQuery({
+      page: form.getValues("premiumKeysPagination.page"),
+      pageSize: form.getValues("premiumKeysPagination.pageSize"),
+    });
 
   const { mutateAsync: createPremiumKey, isLoading } =
     api.admin.createPremiumKey.useMutation({
@@ -49,14 +68,18 @@ const Page: NextPage = () => {
       },
     });
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {},
-  });
-
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    void createPremiumKey(data);
-  };
+  const { mutateAsync: deletePremiumKey } =
+    api.admin.deletePremiumKey.useMutation({
+      onSuccess: () => {
+        void refetchPremiumKeys();
+        showToast("Deleted premium key!");
+      },
+      onError: (e) => {
+        showToast(
+          `${e.message ?? e ?? "Unknown error while deleting premium key"}`
+        );
+      },
+    });
 
   if (!user?.isAdmin) return null;
 
@@ -72,6 +95,9 @@ const Page: NextPage = () => {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Created" />
       ),
+      cell: ({ getValue }) => {
+        return <div>{format(getValue() as Date, "PPP")}</div>;
+      },
     },
     {
       accessorKey: "key",
@@ -96,6 +122,26 @@ const Page: NextPage = () => {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Used By" />
       ),
+    },
+    {
+      id: "delete",
+      cell: ({ row }) => {
+        const premiumKey = row.original;
+
+        return (
+          <button
+            className={cn(
+              premiumKey.usedById
+                ? "cursor-not-allowed opacity-50"
+                : "transition-all active:scale-95"
+            )}
+            disabled={!!premiumKey.usedById}
+            onClick={() => void deletePremiumKey({ id: premiumKey.id })}
+          >
+            <Trash className="h-4 w-4 text-red-500" />
+          </button>
+        );
+      },
     },
   ];
 
@@ -186,7 +232,22 @@ const Page: NextPage = () => {
         <Separator />
       </div>
 
-      <DataTable columns={columns} data={premiumKeysData?.premiumKeys ?? []} />
+      <DataTable
+        filterColumn="key"
+        columns={columns}
+        data={premiumKeysData?.premiumKeys ?? []}
+        pageCount={premiumKeysData?.pagination.totalPages ?? 1}
+        page={form.getValues("premiumKeysPagination.page")}
+        setPage={(page) => {
+          form.setValue("premiumKeysPagination.page", page);
+          void refetchPremiumKeys();
+        }}
+        pageSize={form.getValues("premiumKeysPagination.pageSize")}
+        setPageSize={(pageSize) => {
+          form.setValue("premiumKeysPagination.pageSize", pageSize);
+          void refetchPremiumKeys();
+        }}
+      />
     </div>
   );
 };
