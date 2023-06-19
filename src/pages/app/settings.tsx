@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { showToast } from "@/components/ui/use-toast";
 import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 const formSchema = z.object({
   autoPost: z.boolean(),
@@ -34,6 +35,7 @@ const Page: NextPage = () => {
       form.setValue("purgeOlderThan", data.purgeOlderThan);
     },
   });
+  const { data: listings } = api.user.listing.summary.useQuery();
 
   const { mutateAsync: updateSettings, isLoading } =
     api.user.update.useMutation({
@@ -65,6 +67,25 @@ const Page: NextPage = () => {
           onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-6"
         >
+          <div className="space-y-2">
+            <Label>User ID</Label>
+            <Input value={user?.id} readOnly />
+            <FormDescription>
+              Your user ID is used to identify your account.
+            </FormDescription>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Listings</Label>
+            <Input
+              value={listings && `${listings.total} / ${listings.limit}`}
+              readOnly
+            />
+            <FormDescription>
+              The number of listings you have saved.
+            </FormDescription>
+          </div>
+
           <FormField
             control={form.control}
             name="autoPost"

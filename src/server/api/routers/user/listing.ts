@@ -13,10 +13,21 @@ import {
 } from "@/constants";
 
 export const listingRouter = createTRPCRouter({
+  summary: protectedProcedure.query(async ({ ctx }) => {
+    const nListings = await ctx.prisma.gameflipListing.count({
+      where: { userId: ctx.user.id },
+    });
+
+    return {
+      total: nListings,
+      limit: MAX_LISTINGS_PER_USER[ctx.user.premiumTier],
+    };
+  }),
+
   getAll: protectedProcedure
     .input(
       z.object({
-        page: z.number().min(1),
+        page: z.number().min(1).default(1),
         pageSize: z.number().min(15).max(100).default(15),
       })
     )
