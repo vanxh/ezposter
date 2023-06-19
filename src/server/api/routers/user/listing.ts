@@ -97,4 +97,18 @@ export const listingRouter = createTRPCRouter({
 
       return listing;
     }),
+
+  delete: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      await ctx.prisma.gameflipListing.delete({
+        where: { id: input.id },
+      });
+
+      return true;
+    }),
 });

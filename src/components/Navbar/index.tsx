@@ -49,6 +49,9 @@ export default function Navbar() {
                 <Link href="/app">Dashboard</Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
+                <Link href="/app/listings">Listings</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
                 <Link href="/app/settings">Settings</Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
