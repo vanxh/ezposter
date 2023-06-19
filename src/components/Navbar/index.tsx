@@ -14,7 +14,7 @@ import { MenuSquare } from "lucide-react";
 
 export default function Navbar() {
   return (
-    <nav className="mb-auto flex w-full flex-row items-center justify-between gap-x-4 px-4 py-4">
+    <nav className="top-0 flex w-full flex-row items-center justify-between gap-x-4 px-4 py-4">
       <Link href={"/"} className="flex flex-row items-center gap-x-2">
         <Image
           src={Logo}

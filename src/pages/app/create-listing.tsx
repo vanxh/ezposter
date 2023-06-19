@@ -186,7 +186,7 @@ const Page: NextPage = () => {
               name="price"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>PRICE</FormLabel>
+                  <FormLabel>Price (in USD)</FormLabel>
                   <FormControl>
                     <div>
                       <Input
@@ -212,7 +212,7 @@ const Page: NextPage = () => {
               name="tags"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>TAGS</FormLabel>
+                  <FormLabel>Tags</FormLabel>
                   <FormControl>
                     <div>
                       <Input
@@ -351,7 +351,7 @@ const Page: NextPage = () => {
               name="shippingWithinDays"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>SHIPPING DAYS</FormLabel>
+                  <FormLabel>Shipping Days</FormLabel>
                   <FormControl>
                     <div>
                       <Input
@@ -374,7 +374,7 @@ const Page: NextPage = () => {
               name="expiresWithinDays"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>EXPIRE IN</FormLabel>
+                  <FormLabel>Expire In</FormLabel>
                   <FormControl>
                     <div>
                       <Input
