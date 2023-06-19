@@ -13,6 +13,35 @@ import {
 } from "@/constants";
 
 export const listingRouter = createTRPCRouter({
+  getAll: protectedProcedure
+    .input(
+      z.object({
+        page: z.number().min(1),
+        pageSize: z.number().min(15).max(100).default(15),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const listings = await ctx.prisma.gameflipListing.findMany({
+        where: { userId: ctx.user.id },
+        skip: (input.page - 1) * input.pageSize,
+        take: input.pageSize,
+      });
+
+      const nListings = await ctx.prisma.gameflipListing.count({
+        where: { userId: ctx.user.id },
+      });
+
+      return {
+        listings,
+        pagination: {
+          page: input.page,
+          pageSize: input.pageSize,
+          totalPages: Math.ceil(nListings / input.pageSize),
+          totalItems: nListings,
+        },
+      };
+    }),
+
   create: protectedProcedure
     .use(isPremiumMiddleware)
     .input(
@@ -56,6 +85,6 @@ export const listingRouter = createTRPCRouter({
         },
       });
 
-      return { listing };
+      return listing;
     }),
 });

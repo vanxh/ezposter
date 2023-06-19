@@ -88,4 +88,5 @@ model GameflipListing {
     userId Int
 
     @@index([userId])
+    @@index([userId, autoPost])
 }
