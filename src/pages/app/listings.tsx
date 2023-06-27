@@ -1,4 +1,5 @@
 import { type NextPage } from "next";
+import Link from "next/link";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -136,6 +137,9 @@ const Page: NextPage = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem>
+                <Link href={`/app/listings/${listing.id}`}>Edit</Link>
+              </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
                   void deleteListing({ id: listing.id });
