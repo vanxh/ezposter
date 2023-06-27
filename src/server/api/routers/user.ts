@@ -157,7 +157,7 @@ export const userRouter = createTRPCRouter({
         });
       }
 
-      if (user.postTime !== queue?.repeat?.every) {
+      if (user.postTime * 1000 !== queue?.repeat?.every) {
         await AutoPostQueue.delete(`${user.id}`);
         await AutoPostQueue.enqueue(user.id, {
           id: `${user.id}`,
@@ -187,16 +187,6 @@ export const userRouter = createTRPCRouter({
 
       if (!queue) {
         queue = await AutoPurgeQueue.enqueue(user.id, {
-          id: `${user.id}`,
-          repeat: {
-            every: 3 * 60 * 1000,
-          },
-        });
-      }
-
-      if (user.postTime !== queue?.repeat?.every) {
-        await AutoPurgeQueue.delete(`${user.id}`);
-        await AutoPurgeQueue.enqueue(user.id, {
           id: `${user.id}`,
           repeat: {
             every: 3 * 60 * 1000,
