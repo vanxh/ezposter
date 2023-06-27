@@ -111,4 +111,36 @@ export const listingRouter = createTRPCRouter({
 
       return true;
     }),
+
+  update: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        name: z.string().min(1).max(100),
+        description: z.string().min(1).max(1000),
+        category: z.nativeEnum(GAMEFLIP_CATEGORIES),
+        platform: z.nativeEnum(GAMEFLIP_PLATFORMS),
+        upc: z.nativeEnum(GAMEFLIP_UPCS),
+        priceInCents: z
+          .number()
+          .min(75)
+          .max(9999 * 100),
+        shippingWithinDays: z.number().min(1).max(3),
+        expiresWithinDays: z.number().min(1).max(30),
+        tags: z.array(z.string().min(1).max(100)).max(20, {
+          message: "You can only have up to 20 tags",
+        }),
+        images: z.array(z.string()).max(5, {
+          message: "You can only have up to 5 images",
+        }),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const listing = await ctx.prisma.gameflipListing.update({
+        where: { id: input.id },
+        data: input,
+      });
+
+      return listing;
+    }),
 });
