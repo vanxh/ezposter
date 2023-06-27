@@ -21,16 +21,27 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { showToast } from "@/components/ui/use-toast";
-import { Combobox } from "@/components/ui/combobox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { DataTable } from "@/components/ui/data-table";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import { Separator } from "@/components/ui/separator";
 
 const formSchema = z.object({
-  premiumKeysPagination: z.object({
-    page: z.number().min(1).max(1000).default(1).optional(),
-    pageSize: z.number().min(10).max(50).default(10).optional(),
-  }),
+  premiumKeysPagination: z
+    .object({
+      page: z.number().min(1).max(1000).default(1).optional(),
+      pageSize: z.number().min(10).max(50).default(10).optional(),
+    })
+    .default({
+      page: 1,
+      pageSize: 10,
+    }),
   duration: z.number().min(1).max(365),
   tier: z.nativeEnum(PremiumTier),
 });
@@ -40,10 +51,6 @@ const Page: NextPage = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {},
   });
-
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    void createPremiumKey(data);
-  };
 
   const { data: user } = api.user.me.useQuery();
   const { data: premiumKeysData, refetch: refetchPremiumKeys } =
@@ -67,6 +74,10 @@ const Page: NextPage = () => {
         );
       },
     });
+
+  const onSubmit = (data: z.infer<typeof formSchema>) => {
+    void createPremiumKey(data);
+  };
 
   const { mutateAsync: deletePremiumKey } =
     api.admin.deletePremiumKey.useMutation({
@@ -189,10 +200,12 @@ const Page: NextPage = () => {
                 <FormItem>
                   <FormLabel>Premium Tier</FormLabel>
                   <FormControl>
-                    <div>
-                      <Combobox
-                        placeholder="premium tier"
-                        options={[
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder={field.value ?? "Select..."} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[
                           {
                             label: "Basic",
                             value: PremiumTier.BASIC,
@@ -201,10 +214,13 @@ const Page: NextPage = () => {
                             label: "Premium",
                             value: PremiumTier.PREMIUM,
                           },
-                        ]}
-                        {...field}
-                      />
-                    </div>
+                        ].map((o) => (
+                          <SelectItem key={o.value} value={o.value}>
+                            {o.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </FormControl>
                   <FormDescription>
                     The tier of premium subscription.
@@ -219,6 +235,7 @@ const Page: NextPage = () => {
             <Button
               type="submit"
               className="ml-auto w-full md:w-auto"
+              disabled={isLoading}
               loading={isLoading}
             >
               {isLoading ? "Creating..." : "Create"}
