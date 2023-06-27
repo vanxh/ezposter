@@ -5,6 +5,8 @@ import { listingRouter } from "@/server/api/routers/user/listing";
 import { getProfile } from "@/utils/gfapi";
 import { isPremium } from "@/utils/db";
 import { MIN_POST_INTERVAL_IN_SECONDS } from "@/constants";
+import AutoPostQueue from "@/pages/api/autopost";
+import AutoPurgeQueue from "@/pages/api/autopurge";
 
 export const userRouter = createTRPCRouter({
   listing: listingRouter,
@@ -123,5 +125,85 @@ export const userRouter = createTRPCRouter({
       });
 
       return update;
+    }),
+
+  syncAutoPost: protectedProcedure
+    .input(z.undefined())
+    .query(async ({ ctx }) => {
+      const { user } = ctx;
+
+      if (!user.autoPost) return;
+
+      const nListings = await ctx.prisma.gameflipListing.count({
+        where: { userId: user.id },
+      });
+
+      if (!nListings) return;
+
+      const premium = isPremium(user);
+      const gfLoggedIn =
+        !!user.gameflipApiKey && !!user.gameflipApiSecret && !!user.gameflipId;
+
+      if (!premium || !gfLoggedIn) return;
+
+      const queue = await AutoPostQueue.getById(`${user.id}`);
+
+      if (!queue) {
+        await AutoPostQueue.enqueue(user.id, {
+          id: `${user.id}`,
+          repeat: {
+            every: user.postTime * 1000,
+          },
+        });
+      }
+
+      if (user.postTime !== queue?.repeat?.every) {
+        await AutoPostQueue.delete(`${user.id}`);
+        await AutoPostQueue.enqueue(user.id, {
+          id: `${user.id}`,
+          repeat: {
+            every: user.postTime * 1000,
+          },
+        });
+      }
+
+      return queue;
+    }),
+
+  syncAutoPurge: protectedProcedure
+    .input(z.undefined())
+    .query(async ({ ctx }) => {
+      const { user } = ctx;
+
+      if (!user.autoPost) return;
+
+      const premium = isPremium(user);
+      const gfLoggedIn =
+        !!user.gameflipApiKey && !!user.gameflipApiSecret && !!user.gameflipId;
+
+      if (!premium || !gfLoggedIn) return;
+
+      const queue = await AutoPurgeQueue.getById(`${user.id}`);
+
+      if (!queue) {
+        await AutoPurgeQueue.enqueue(user.id, {
+          id: `${user.id}`,
+          repeat: {
+            every: 3 * 60 * 1000,
+          },
+        });
+      }
+
+      if (user.postTime !== queue?.repeat?.every) {
+        await AutoPurgeQueue.delete(`${user.id}`);
+        await AutoPurgeQueue.enqueue(user.id, {
+          id: `${user.id}`,
+          repeat: {
+            every: 3 * 60 * 1000,
+          },
+        });
+      }
+
+      return queue;
     }),
 });
