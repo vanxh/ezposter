@@ -8,6 +8,10 @@ export const env = createEnv({
     CLERK_SECRET_KEY: z.string(),
     UPLOADTHING_SECRET: z.string(),
     UPLOADTHING_APP_ID: z.string(),
+    QUIRREL_BASE_URL: z.string().url(),
+    QUIRREL_API_URL: z.string().url(),
+    QUIRREL_ENCRYPTION_SECRET: z.string(),
+    QUIRREL_TOKEN: z.string(),
   },
 
   client: {
@@ -32,6 +36,10 @@ export const env = createEnv({
       process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL,
     UPLOADTHING_SECRET: process.env.UPLOADTHING_SECRET,
     UPLOADTHING_APP_ID: process.env.UPLOADTHING_APP_ID,
+    QUIRREL_BASE_URL: process.env.QUIRREL_BASE_URL,
+    QUIRREL_API_URL: process.env.QUIRREL_API_URL,
+    QUIRREL_ENCRYPTION_SECRET: process.env.QUIRREL_ENCRYPTION_SECRET,
+    QUIRREL_TOKEN: process.env.QUIRREL_TOKEN,
   },
 
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,

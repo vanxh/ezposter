@@ -1,5 +1,0 @@
-app = "quirrel-redis"
-
-[[mounts]]
-  destination = "/data"
-  source = "redis_data"
