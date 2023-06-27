@@ -8,7 +8,7 @@ export const env = createEnv({
     CLERK_SECRET_KEY: z.string(),
     UPLOADTHING_SECRET: z.string(),
     UPLOADTHING_APP_ID: z.string(),
-    QUIRREL_BASE_URL: z.string().url(),
+    QUIRREL_BASE_URL: z.string(),
     QUIRREL_API_URL: z.string().url(),
     QUIRREL_ENCRYPTION_SECRET: z.string(),
     QUIRREL_TOKEN: z.string(),
