@@ -51,18 +51,45 @@ const formSchema = z.object({
 
 const Page: NextPage = () => {
   const router = useRouter();
+  const listingId = router.query.id as string;
 
   const { data: user } = api.user.me.useQuery();
+  const { data: listing, isLoading: loadingListing } =
+    api.user.listing.getOne.useQuery(
+      {
+        id: +listingId,
+      },
+      {
+        enabled: !!listingId,
+        onSuccess: (data) => {
+          if (!data) return;
+          form.reset({
+            name: data.name,
+            description: data.description,
+            category: data.category,
+            platform: data.platform,
+            upc: data.upc,
+            price: data.priceInCents / 100,
+            shippingWithinDays: data.shippingWithinDays,
+            expiresWithinDays: data.expiresWithinDays,
+            tags: data.tags as string[],
+            images: data.images as string[],
+          });
+        },
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+      }
+    );
 
-  const { mutateAsync: createListing, isLoading } =
-    api.user.listing.create.useMutation({
+  const { mutateAsync: updateListing, isLoading } =
+    api.user.listing.update.useMutation({
       onSuccess: () => {
-        showToast("Listing created");
+        showToast("Listing updated");
         void router.push("/app");
       },
       onError: (e) => {
         showToast(
-          `${e.message ?? e ?? "Unknown error while creating listing"}`
+          `${e.message ?? e ?? "Unknown error while updating listing"}`
         );
       },
     });
@@ -88,19 +115,37 @@ const Page: NextPage = () => {
   });
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    const uploaded = await startUpload(data.images as File[]);
+    const uploaded = await startUpload(
+      data.images.filter((i) => typeof i !== "string") as File[]
+    );
     if (!uploaded) return;
-    void createListing({
+    void updateListing({
       ...data,
+      id: +listingId,
       priceInCents: Math.round(data.price * 100),
-      images: uploaded.map((u) => u.fileUrl),
+      images: [
+        ...uploaded.map((u) => u.fileUrl),
+        ...(data.images.filter((i) => typeof i === "string") as string[]),
+      ],
     });
   };
+
+  if (!listingId) {
+    return <div>Invalid listing id</div>;
+  }
+
+  if (loadingListing) {
+    return <div>Loading...</div>;
+  }
+
+  if (!listing && !loadingListing) {
+    return <div>Invalid listing id</div>;
+  }
 
   return (
     <div className="container mx-auto flex flex-col justify-start gap-y-6">
       <div className="flex flex-col gap-y-2">
-        <h3 className="text-lg font-semibold">Create a Listing</h3>
+        <h3 className="text-lg font-semibold">Edit Listing</h3>
         <Separator />
       </div>
 
@@ -132,7 +177,11 @@ const Page: NextPage = () => {
                   {field.value?.map((image, idx) => (
                     <Image
                       key={idx}
-                      src={URL.createObjectURL(image as File)}
+                      src={
+                        image instanceof File
+                          ? URL.createObjectURL(image)
+                          : (image as string)
+                      }
                       width={100}
                       height={100}
                       alt="listing image"

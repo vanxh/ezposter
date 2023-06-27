@@ -53,6 +53,20 @@ export const listingRouter = createTRPCRouter({
       };
     }),
 
+  getOne: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const listing = await ctx.prisma.gameflipListing.findUnique({
+        where: { id: input.id },
+      });
+
+      return listing;
+    }),
+
   create: premiumProcedure
     .input(
       z.object({
