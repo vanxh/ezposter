@@ -132,24 +132,24 @@ export const userRouter = createTRPCRouter({
     .query(async ({ ctx }) => {
       const { user } = ctx;
 
-      if (!user.autoPost) return;
+      if (!user.autoPost) return null;
 
       const nListings = await ctx.prisma.gameflipListing.count({
         where: { userId: user.id },
       });
 
-      if (!nListings) return;
+      if (!nListings) return null;
 
       const premium = isPremium(user);
       const gfLoggedIn =
         !!user.gameflipApiKey && !!user.gameflipApiSecret && !!user.gameflipId;
 
-      if (!premium || !gfLoggedIn) return;
+      if (!premium || !gfLoggedIn) return null;
 
-      const queue = await AutoPostQueue.getById(`${user.id}`);
+      let queue = await AutoPostQueue.getById(`${user.id}`);
 
       if (!queue) {
-        await AutoPostQueue.enqueue(user.id, {
+        queue = await AutoPostQueue.enqueue(user.id, {
           id: `${user.id}`,
           repeat: {
             every: user.postTime * 1000,
@@ -175,18 +175,18 @@ export const userRouter = createTRPCRouter({
     .query(async ({ ctx }) => {
       const { user } = ctx;
 
-      if (!user.autoPost) return;
+      if (!user.autoPost) return null;
 
       const premium = isPremium(user);
       const gfLoggedIn =
         !!user.gameflipApiKey && !!user.gameflipApiSecret && !!user.gameflipId;
 
-      if (!premium || !gfLoggedIn) return;
+      if (!premium || !gfLoggedIn) return null;
 
-      const queue = await AutoPurgeQueue.getById(`${user.id}`);
+      let queue = await AutoPurgeQueue.getById(`${user.id}`);
 
       if (!queue) {
-        await AutoPurgeQueue.enqueue(user.id, {
+        queue = await AutoPurgeQueue.enqueue(user.id, {
           id: `${user.id}`,
           repeat: {
             every: 3 * 60 * 1000,
