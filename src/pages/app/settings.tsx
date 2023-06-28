@@ -40,11 +40,16 @@ const Page: NextPage = () => {
       form.setValue("autoPost", data.autoPost);
       form.setValue("postTime", data.postTime);
       form.setValue("purgeOlderThan", data.purgeOlderThan);
-      form.setValue("gameflipApiKey", data.gameflipApiKey ?? "");
-      form.setValue("gameflipApiSecret", data.gameflipApiSecret ?? "");
+      if (data.gameflipApiKey) {
+        form.setValue("gameflipApiKey", data.gameflipApiKey ?? "");
+      }
+      if (data.gameflipApiSecret) {
+        form.setValue("gameflipApiSecret", data.gameflipApiSecret ?? "");
+      }
     },
     refetchOnWindowFocus: false,
     refetchOnMount: false,
+    refetchOnReconnect: false,
   });
   const { data: listings } = api.user.listing.summary.useQuery();
 
