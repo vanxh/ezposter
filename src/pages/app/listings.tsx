@@ -41,30 +41,36 @@ const Page: NextPage = () => {
     id: number,
     update: Partial<GameflipListing>
   ) => {
-    utils.user.listing.getAll.setInfiniteData(
+    utils.user.listing.getAll.setData(
       {
-        pageSize: 25,
+        pageSize: form.getValues("listingsPagination.pageSize"),
+        page: form.getValues("listingsPagination.page"),
       },
       (data) => {
         if (!data) {
           return {
-            pages: [],
-            pageParams: [],
+            listings: [],
+            pagination: {
+              page: 1,
+              pageSize: 10,
+              totalPages: 1,
+              totalItems: 0,
+            },
           };
         }
 
         return {
           ...data,
-          pages: data.pages.map((page) => ({
-            ...page,
-            listings: page.listings.map((listing) => {
-              if (listing.id !== id) return listing;
+          listings: data.listings.map((listing) => {
+            if (listing.id === id) {
               return {
                 ...listing,
                 ...update,
               };
-            }),
-          })),
+            }
+
+            return listing;
+          }),
         };
       }
     );
