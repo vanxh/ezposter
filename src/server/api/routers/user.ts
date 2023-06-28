@@ -138,7 +138,7 @@ export const userRouter = createTRPCRouter({
 
   getGameflipProfile: gameflipProcedure
     .input(z.undefined())
-    .mutation(async ({ ctx }) => {
+    .query(async ({ ctx }) => {
       if (!ctx.user.gameflipApiKey || !ctx.user.gameflipApiSecret) return null;
 
       const gameflipProfile = await getProfile("me", {

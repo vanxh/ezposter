@@ -21,6 +21,7 @@ import { showToast } from "@/components/ui/use-toast";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Sparkle } from "lucide-react";
 
 const formSchema = z.object({
   autoPost: z.boolean(),
@@ -51,6 +52,10 @@ const Page: NextPage = () => {
     refetchOnMount: false,
     refetchOnReconnect: false,
   });
+  const { data: gameflipData, refetch: refetchGameflipProfile } =
+    api.user.getGameflipProfile.useQuery(undefined, {
+      enabled: !!user?.gameflipApiKey && !!user?.gameflipApiSecret,
+    });
   const { data: listings } = api.user.listing.summary.useQuery();
 
   const { mutateAsync: updateSettings, isLoading } =
@@ -73,6 +78,7 @@ const Page: NextPage = () => {
           `Gameflip profile connected to ${gameflipProfile.display_name}!`
         );
         void refetch();
+        void refetchGameflipProfile();
       },
       onError: (e) => {
         showToast(
@@ -189,7 +195,7 @@ const Page: NextPage = () => {
                 <FormItem>
                   <FormLabel>Post Time (in seconds)</FormLabel>
                   <FormControl>
-                    <div>
+                    <div className="flex flex-row items-center gap-x-4">
                       <Input
                         type="number"
                         placeholder="Enter post time"
@@ -197,6 +203,23 @@ const Page: NextPage = () => {
                         value={field.value}
                         onChange={(e) => field.onChange(e.target.valueAsNumber)}
                       />
+                      <Button
+                        onClick={() => {
+                          field.onChange(60);
+                        }}
+                        className="min-w-max"
+                      >
+                        1 min
+                      </Button>
+                      {gameflipData && (
+                        <Button
+                          onClick={() => {
+                            field.onChange(gameflipData?.recommendedPostTime);
+                          }}
+                        >
+                          <Sparkle size={16} />
+                        </Button>
+                      )}
                     </div>
                   </FormControl>
                   <FormDescription>
@@ -226,7 +249,7 @@ const Page: NextPage = () => {
                 <FormItem>
                   <FormLabel>Purge Time (in minutes)</FormLabel>
                   <FormControl>
-                    <div>
+                    <div className="flex flex-row items-center gap-x-4">
                       <Input
                         type="number"
                         placeholder="Enter purge time"
@@ -234,6 +257,23 @@ const Page: NextPage = () => {
                         value={field.value}
                         onChange={(e) => field.onChange(e.target.valueAsNumber)}
                       />
+                      <Button
+                        onClick={() => {
+                          field.onChange(60 * 24);
+                        }}
+                        className="min-w-max"
+                      >
+                        1 day
+                      </Button>
+                      {gameflipData && (
+                        <Button
+                          onClick={() => {
+                            field.onChange(gameflipData?.recommendedPurgeTime);
+                          }}
+                        >
+                          <Sparkle size={16} />
+                        </Button>
+                      )}
                     </div>
                   </FormControl>
                   <FormDescription>
