@@ -30,6 +30,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { showToast } from "@/components/ui/use-toast";
 import { Combobox } from "@/components/ui/combobox";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import ImageUploader from "@/components/ImageUploader";
 
 const formSchema = z.object({
@@ -47,6 +48,7 @@ const formSchema = z.object({
   images: z.array(z.unknown()).max(5, {
     message: "You can only have up to 5 images",
   }),
+  autoPost: z.boolean().default(true),
 });
 
 const Page: NextPage = () => {
@@ -84,6 +86,7 @@ const Page: NextPage = () => {
       shippingWithinDays: 3,
       expiresWithinDays: 7,
       tags: ["Type:In Game Item"],
+      autoPost: true,
     },
   });
 
@@ -393,6 +396,28 @@ const Page: NextPage = () => {
                   <FormDescription>
                     The expire days of your listing.
                   </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="autoPost"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel>Auto Post</FormLabel>
+                    <FormDescription>
+                      Automatically post your listing in auto post interval.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
