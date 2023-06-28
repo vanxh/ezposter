@@ -66,6 +66,22 @@ export const userRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      if (!input.gameflipApiKey || !input.gameflipApiSecret) {
+        const disconnectedUser = await ctx.prisma.user.update({
+          where: { id: ctx.user.id },
+          data: {
+            gameflipApiKey: null,
+            gameflipApiSecret: null,
+            gameflipId: null,
+            autoPost: false,
+          },
+        });
+
+        return {
+          user: disconnectedUser,
+        };
+      }
+
       const gameflipProfile = await getProfile("me", input);
 
       const update = await ctx.prisma.user.update({

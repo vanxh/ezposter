@@ -21,7 +21,7 @@ import { showToast } from "@/components/ui/use-toast";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Sparkle } from "lucide-react";
+import { LogOut, Sparkle } from "lucide-react";
 
 const formSchema = z.object({
   autoPost: z.boolean(),
@@ -75,7 +75,9 @@ const Page: NextPage = () => {
     api.user.connectGameflip.useMutation({
       onSuccess: ({ gameflipProfile }) => {
         showToast(
-          `Gameflip profile connected to ${gameflipProfile.display_name}!`
+          `Gameflip profile connected to ${
+            gameflipProfile?.display_name as string
+          }!`
         );
         void refetch();
         void refetchGameflipProfile();
@@ -338,11 +340,21 @@ const Page: NextPage = () => {
                 <FormItem>
                   <FormLabel>Gameflip Account</FormLabel>
                   <FormControl>
-                    <div>
+                    <div className="flex flex-row items-center gap-x-4">
                       <Input
                         value={gameflipData.gameflipProfile.display_name}
                         readOnly
                       />
+                      <Button
+                        onClick={() => {
+                          void connectGameflip({
+                            gameflipApiKey: "",
+                            gameflipApiSecret: "",
+                          });
+                        }}
+                      >
+                        <LogOut size={16} />
+                      </Button>
                     </div>
                   </FormControl>
                   <FormDescription>
