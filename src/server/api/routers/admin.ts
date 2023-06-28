@@ -13,7 +13,6 @@ export const adminRouter = createTRPCRouter({
       })
     )
     .query(async ({ ctx, input }) => {
-      console.log(input);
       const keys = await ctx.prisma.premiumKey.findMany({
         skip: (input.page - 1) * input.pageSize,
         take: input.pageSize,
@@ -59,5 +58,31 @@ export const adminRouter = createTRPCRouter({
       });
 
       return premiumKey;
+    }),
+
+  getUsers: adminProcedure
+    .input(
+      z.object({
+        page: z.number().min(1).default(1),
+        pageSize: z.number().min(10).max(50).default(10),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const users = await ctx.prisma.user.findMany({
+        skip: (input.page - 1) * input.pageSize,
+        take: input.pageSize,
+      });
+
+      const nUsers = await ctx.prisma.user.count();
+
+      return {
+        users,
+        pagination: {
+          page: input.page,
+          pageSize: input.pageSize,
+          totalPages: Math.ceil(nUsers / input.pageSize),
+          totalItems: nUsers,
+        },
+      };
     }),
 });
