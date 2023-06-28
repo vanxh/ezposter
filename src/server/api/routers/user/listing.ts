@@ -1,10 +1,11 @@
 import { z } from "zod";
+import { utapi } from "uploadthing/server";
+
 import {
   createTRPCRouter,
   protectedProcedure,
   premiumProcedure,
 } from "@/server/api/trpc";
-
 import {
   GAMEFLIP_CATEGORIES,
   GAMEFLIP_PLATFORMS,
@@ -121,9 +122,14 @@ export const listingRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      await ctx.prisma.gameflipListing.delete({
+      const listing = await ctx.prisma.gameflipListing.delete({
         where: { id: input.id },
       });
+      await utapi.deleteFiles(
+        (listing.images as string[]).map(
+          (url) => url.split("/").pop() as string
+        )
+      );
 
       return true;
     }),
