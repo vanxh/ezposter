@@ -196,9 +196,15 @@ const Page: NextPage = () => {
   return (
     <div className="container mx-auto flex flex-col justify-start gap-y-6">
       <div className="flex flex-col gap-y-2">
-        <h3 className="text-lg font-semibold">
-          Saved Listings ({listingSummary?.total ?? 0})
-        </h3>
+        <div className="flex flex-row items-center justify-between">
+          <h3 className="text-lg font-semibold">
+            Saved Listings ({listingSummary?.total ?? 0})
+          </h3>
+
+          <Link href="/app/create-listing">
+            <Button>Create Listing</Button>
+          </Link>
+        </div>
         <Separator />
       </div>
 
