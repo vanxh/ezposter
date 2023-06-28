@@ -44,6 +44,7 @@ const Page: NextPage = () => {
       form.setValue("gameflipApiSecret", data.gameflipApiSecret ?? "");
     },
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
   const { data: listings } = api.user.listing.summary.useQuery();
 
