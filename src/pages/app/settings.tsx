@@ -68,8 +68,10 @@ const Page: NextPage = () => {
 
   const { mutateAsync: connectGameflip, isLoading: connectGameflipLoading } =
     api.user.connectGameflip.useMutation({
-      onSuccess: () => {
-        showToast(`Gameflip profile connected!`);
+      onSuccess: ({ gameflipProfile }) => {
+        showToast(
+          `Gameflip profile connected to ${gameflipProfile.display_name}!`
+        );
         void refetch();
       },
       onError: (e) => {
