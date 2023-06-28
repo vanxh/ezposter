@@ -40,13 +40,13 @@ const MyApp: AppType = ({ Component, pageProps }) => {
           <meta name="twitter:image" content="/api/og" />
           <meta
             name="viewport"
-            content="width=device-width, user-scalable=no"
+            content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1"
           />
         </Head>
 
         <div
           className={cn(
-            "flex min-h-[100vh] w-full flex-col items-center justify-center font-poppins",
+            "flex min-h-[100vh] w-screen flex-col items-center justify-center font-poppins",
             poppins.variable
           )}
         >
