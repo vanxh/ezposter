@@ -52,7 +52,7 @@ model User {
 
     autoPost       Boolean @default(false)
     postTime       Int     @default(180) // in seconds
-    purgeOlderThan Int     @default(14400) // in minutes
+    purgeOlderThan Int     @default(1440) // in minutes
 
     nPosted Int @default(0)
     nPurged Int @default(0)
