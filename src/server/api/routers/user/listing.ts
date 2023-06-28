@@ -157,4 +157,34 @@ export const listingRouter = createTRPCRouter({
 
       return listing;
     }),
+
+  enable: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const listing = await ctx.prisma.gameflipListing.update({
+        where: { id: input.id },
+        data: { autoPost: true },
+      });
+
+      return listing;
+    }),
+
+  disable: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const listing = await ctx.prisma.gameflipListing.update({
+        where: { id: input.id },
+        data: { autoPost: false },
+      });
+
+      return listing;
+    }),
 });
