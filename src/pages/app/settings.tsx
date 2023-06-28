@@ -332,6 +332,39 @@ const Page: NextPage = () => {
                 </FormItem>
               )}
             />
+
+            {gameflipData && (
+              <>
+                <FormItem>
+                  <FormLabel>Gameflip Account</FormLabel>
+                  <FormControl>
+                    <div>
+                      <Input
+                        value={gameflipData.gameflipProfile.display_name}
+                        readOnly
+                      />
+                    </div>
+                  </FormControl>
+                  <FormDescription>
+                    Your Connected Gameflip Account.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+
+                <FormItem>
+                  <FormLabel>Gameflip Limit</FormLabel>
+                  <FormControl>
+                    <div>
+                      <Input value={gameflipData.listingLimit} readOnly />
+                    </div>
+                  </FormControl>
+                  <FormDescription>
+                    Max number of listings you can have on Gameflip.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              </>
+            )}
           </div>
 
           <div className="flex w-full flex-row gap-x-4">
