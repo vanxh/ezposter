@@ -80,6 +80,17 @@ const isAuthedMiddleware = t.middleware(async ({ next, ctx }) => {
   });
 });
 
+const isGameflipConnectedMiddleware = t.middleware(async ({ next, ctx }) => {
+  if (!ctx.user?.gameflipApiKey || !ctx.user?.gameflipApiSecret) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "You must connect your Gameflip account to perform this action.",
+    });
+  }
+
+  return next();
+});
+
 const isPremiumMiddleware = t.middleware(async ({ next, ctx }) => {
   if (!ctx.user || !isPremium(ctx.user)) {
     throw new TRPCError({
@@ -106,6 +117,9 @@ export const createTRPCRouter = t.router;
 
 export const publicProcedure = t.procedure;
 export const protectedProcedure = t.procedure.use(isAuthedMiddleware);
+export const gameflipProcedure = t.procedure
+  .use(isAuthedMiddleware)
+  .use(isGameflipConnectedMiddleware);
 export const premiumProcedure = t.procedure
   .use(isAuthedMiddleware)
   .use(isPremiumMiddleware);

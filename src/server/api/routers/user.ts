@@ -1,6 +1,10 @@
 import { z } from "zod";
 
-import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  gameflipProcedure,
+} from "@/server/api/trpc";
 import { listingRouter } from "@/server/api/routers/user/listing";
 import { getProfile } from "@/utils/gfapi";
 import { isPremium } from "@/utils/db";
@@ -125,6 +129,19 @@ export const userRouter = createTRPCRouter({
       });
 
       return update;
+    }),
+
+  getGameflipProfile: gameflipProcedure
+    .input(z.undefined())
+    .mutation(async ({ ctx }) => {
+      if (!ctx.user.gameflipApiKey || !ctx.user.gameflipApiSecret) return null;
+
+      const gameflipProfile = await getProfile("me", {
+        gameflipApiKey: ctx.user.gameflipApiKey,
+        gameflipApiSecret: ctx.user.gameflipApiSecret,
+      });
+
+      return gameflipProfile;
     }),
 
   syncAutoPost: protectedProcedure
