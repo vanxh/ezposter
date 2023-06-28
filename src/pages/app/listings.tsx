@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { type ColumnDef } from "@tanstack/react-table";
 import { type GameflipListing } from "@prisma/client";
 import { format } from "date-fns";
-import { MoreHorizontal } from "lucide-react";
+import { Edit, MoreHorizontal, PlayCircle, Trash } from "lucide-react";
 
 import { api } from "@/utils/api";
 import { Button } from "@/components/ui/button";
@@ -49,6 +49,26 @@ const Page: NextPage = () => {
     },
     onError: (e) => {
       showToast(`${e.message ?? e ?? "Unknown error while deleting listing"}`);
+    },
+  });
+
+  const { mutateAsync: enableListing } = api.user.listing.enable.useMutation({
+    onSuccess: () => {
+      void refetchListings();
+      showToast("Enabled listing!");
+    },
+    onError: (e) => {
+      showToast(`${e.message ?? e ?? "Unknown error while enabling listing"}`);
+    },
+  });
+
+  const { mutateAsync: disableListing } = api.user.listing.disable.useMutation({
+    onSuccess: () => {
+      void refetchListings();
+      showToast("Disabled listing!");
+    },
+    onError: (e) => {
+      showToast(`${e.message ?? e ?? "Unknown error while disabling listing"}`);
     },
   });
 
@@ -137,14 +157,33 @@ const Page: NextPage = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() => {
+                  void (listing.autoPost
+                    ? disableListing({ id: listing.id })
+                    : enableListing({ id: listing.id }));
+                }}
+                className="inline-flex w-full cursor-pointer items-center gap-x-2"
+              >
+                <PlayCircle size={16} />
+                {listing.autoPost ? "Disable Auto Post" : "Enable Auto Post"}
+              </DropdownMenuItem>
               <DropdownMenuItem>
-                <Link href={`/app/listings/${listing.id}`}>Edit</Link>
+                <Link
+                  href={`/app/listings/${listing.id}`}
+                  className="inline-flex w-full items-center gap-x-2"
+                >
+                  <Edit size={16} />
+                  Edit
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
                   void deleteListing({ id: listing.id });
                 }}
+                className="inline-flex w-full cursor-pointer items-center gap-x-2"
               >
+                <Trash size={16} />
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
