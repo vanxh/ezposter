@@ -1,197 +1,37 @@
 import { type NextPage } from "next";
 import Link from "next/link";
-import * as z from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { type ColumnDef } from "@tanstack/react-table";
-import { type GameflipListing } from "@prisma/client";
-import { format } from "date-fns";
-import { Edit, MoreHorizontal, PlayCircle, Trash } from "lucide-react";
+import { DollarSign } from "lucide-react";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 import { api } from "@/utils/api";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { showToast } from "@/components/ui/use-toast";
-import { DataTable } from "@/components/ui/data-table";
-import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import { Separator } from "@/components/ui/separator";
-
-const formSchema = z.object({
-  listingsPagination: z.object({
-    page: z.number().min(1).max(1000).default(1).optional(),
-    pageSize: z.number().min(10).max(50).default(10).optional(),
-  }),
-});
+import Image from "next/image";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Page: NextPage = () => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {},
-  });
-
   const { data: listingSummary } = api.user.listing.summary.useQuery();
-  const { data: listingsData, refetch: refetchListings } =
-    api.user.listing.getAll.useQuery({
-      page: form.getValues("listingsPagination.page"),
-      pageSize: form.getValues("listingsPagination.pageSize"),
-    });
-
-  const { mutateAsync: deleteListing } = api.user.listing.delete.useMutation({
-    onSuccess: () => {
-      void refetchListings();
-      showToast("Deleted listing!");
-    },
-    onError: (e) => {
-      showToast(`${e.message ?? e ?? "Unknown error while deleting listing"}`);
-    },
-  });
-
-  const { mutateAsync: enableListing } = api.user.listing.enable.useMutation({
-    onSuccess: () => {
-      void refetchListings();
-      showToast("Enabled listing!");
-    },
-    onError: (e) => {
-      showToast(`${e.message ?? e ?? "Unknown error while enabling listing"}`);
-    },
-  });
-
-  const { mutateAsync: disableListing } = api.user.listing.disable.useMutation({
-    onSuccess: () => {
-      void refetchListings();
-      showToast("Disabled listing!");
-    },
-    onError: (e) => {
-      showToast(`${e.message ?? e ?? "Unknown error while disabling listing"}`);
-    },
-  });
-
-  const columns: ColumnDef<GameflipListing>[] = [
+  const {
+    data: listingsData,
+    fetchNextPage,
+    hasNextPage,
+  } = api.user.listing.getAll.useInfiniteQuery(
     {
-      accessorKey: "id",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="ID" />
-      ),
+      pageSize: 25,
     },
     {
-      accessorKey: "createdAt",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Created" />
-      ),
-      cell: ({ getValue }) => {
-        return <div>{format(getValue() as Date, "PPP")}</div>;
+      initialCursor: 1,
+      getNextPageParam: (lastPage) => {
+        if (lastPage.pagination.totalPages === lastPage.pagination.page) return;
+        return lastPage.pagination.page + 1;
       },
-    },
-    {
-      accessorKey: "name",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Name" />
-      ),
-    },
-    {
-      accessorKey: "priceInCents",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Price" />
-      ),
-      cell: ({ getValue }) => {
-        return <div>{(getValue() as number) / 100}</div>;
+      getPreviousPageParam: (firstPage) => {
+        return firstPage.pagination.page - 1;
       },
-    },
-    {
-      accessorKey: "category",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Category" />
-      ),
-    },
-    {
-      accessorKey: "platform",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Platform" />
-      ),
-    },
-    {
-      accessorKey: "upc",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="UPC" />
-      ),
-    },
-    {
-      accessorKey: "shippingWithinDays",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Ship in" />
-      ),
-    },
-    {
-      accessorKey: "expiresWithinDays",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Expire in" />
-      ),
-    },
-    {
-      accessorKey: "autoPost",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Auto Post" />
-      ),
-      cell: ({ getValue }) => {
-        return <div>{getValue() ? "Yes" : "No"}</div>;
-      },
-    },
-    {
-      id: "actions",
-      cell: ({ row }) => {
-        const listing = row.original;
+    }
+  );
 
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => {
-                  void (listing.autoPost
-                    ? disableListing({ id: listing.id })
-                    : enableListing({ id: listing.id }));
-                }}
-                className="inline-flex w-full cursor-pointer items-center gap-x-2"
-              >
-                <PlayCircle size={16} />
-                {listing.autoPost ? "Disable Auto Post" : "Enable Auto Post"}
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link
-                  href={`/app/listings/${listing.id}`}
-                  className="inline-flex w-full items-center gap-x-2"
-                >
-                  <Edit size={16} />
-                  Edit
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  void deleteListing({ id: listing.id });
-                }}
-                className="inline-flex w-full cursor-pointer items-center gap-x-2"
-              >
-                <Trash size={16} />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      },
-    },
-  ];
+  const listings = listingsData?.pages.flatMap((page) => page.listings) ?? [];
 
   return (
     <div className="container mx-auto flex flex-col justify-start gap-y-6">
@@ -208,22 +48,57 @@ const Page: NextPage = () => {
         <Separator />
       </div>
 
-      <DataTable
-        filterColumn="name"
-        columns={columns}
-        data={listingsData?.listings ?? []}
-        pageCount={listingsData?.pagination.totalPages ?? 1}
-        page={form.getValues("listingsPagination.page")}
-        setPage={(page) => {
-          form.setValue("listingsPagination.page", page);
-          void refetchListings();
-        }}
-        pageSize={form.getValues("listingsPagination.pageSize")}
-        setPageSize={(pageSize) => {
-          form.setValue("listingsPagination.pageSize", pageSize);
-          void refetchListings();
-        }}
-      />
+      <InfiniteScroll
+        dataLength={listings.length}
+        next={fetchNextPage}
+        hasMore={hasNextPage ?? false}
+        loader={
+          <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-6 md:grid-cols-4 lg:grid-cols-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="flex flex-col gap-y-4">
+                <Skeleton className="aspect-square w-full rounded-lg" />
+
+                <div className="flex w-full flex-col gap-y-1">
+                  <Skeleton className="h-5 w-1/2" />
+                  <Skeleton className="h-4 w-1/4" />
+                </div>
+              </div>
+            ))}
+          </div>
+        }
+      >
+        <div className="grid grid-cols-2 gap-x-6 gap-y-6 md:grid-cols-4 lg:grid-cols-6">
+          {listings.map((l) => (
+            <div key={l.id} className="flex flex-col gap-y-4">
+              <Image
+                src={(l.images as string[])?.[0] || ""}
+                alt="listing image"
+                width={100}
+                height={100}
+                className="aspect-square w-full rounded-lg"
+              />
+
+              <div className="flex flex-col gap-y-1">
+                <h3 className="text-lg font-semibold">{l.name}</h3>
+                <span className="inline-flex items-center gap-x-1 text-sm text-foreground/70">
+                  <DollarSign className="h-4 w-4" /> {l.priceInCents / 100}
+                </span>
+              </div>
+            </div>
+          ))}
+          {!listings.length &&
+            Array.from({ length: 25 }).map((_, i) => (
+              <div key={i} className="flex flex-col gap-y-4">
+                <Skeleton className="aspect-square w-full rounded-lg" />
+
+                <div className="flex w-full flex-col gap-y-1">
+                  <Skeleton className="h-5 w-1/2" />
+                  <Skeleton className="h-4 w-1/4" />
+                </div>
+              </div>
+            ))}
+        </div>
+      </InfiniteScroll>
     </div>
   );
 };

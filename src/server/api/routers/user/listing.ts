@@ -29,12 +29,14 @@ export const listingRouter = createTRPCRouter({
       z.object({
         page: z.number().min(1).default(1),
         pageSize: z.number().min(10).max(50).default(10),
+        cursor: z.number().min(1).optional(),
       })
     )
     .query(async ({ ctx, input }) => {
+      const page = input.cursor || input.page;
       const listings = await ctx.prisma.gameflipListing.findMany({
         where: { userId: ctx.user.id },
-        skip: (input.page - 1) * input.pageSize,
+        skip: (page - 1) * input.pageSize,
         take: input.pageSize,
       });
 
@@ -45,7 +47,7 @@ export const listingRouter = createTRPCRouter({
       return {
         listings,
         pagination: {
-          page: input.page,
+          page: page,
           pageSize: input.pageSize,
           totalPages: Math.ceil(nListings / input.pageSize),
           totalItems: nListings,
