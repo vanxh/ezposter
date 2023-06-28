@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { type ColumnDef } from "@tanstack/react-table";
 import { type PremiumKey, PremiumTier, type User } from "@prisma/client";
 import { format } from "date-fns";
-import { Trash } from "lucide-react";
+import { Crown, Trash } from "lucide-react";
 
 import { api } from "@/utils/api";
 import { cn } from "@/utils/tailwind";
@@ -114,6 +114,16 @@ const Page: NextPage = () => {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="ID" />
       ),
+      cell: ({ getValue, row }) => {
+        const isAdmin = row.original.isAdmin;
+
+        return (
+          <div className="inline-flex items-center gap-x-2">
+            {getValue() as number}
+            {isAdmin && <Crown size={16} />}
+          </div>
+        );
+      },
     },
     {
       accessorKey: "createdAt",
