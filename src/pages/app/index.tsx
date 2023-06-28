@@ -1,6 +1,6 @@
 import { type NextPage } from "next";
 import Link from "next/link";
-import { DollarSign } from "lucide-react";
+import { DollarSign, Edit, Trash } from "lucide-react";
 import InfiniteScroll from "react-infinite-scroll-component";
 
 import { api } from "@/utils/api";
@@ -8,13 +8,52 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
+import { showToast } from "@/components/ui/use-toast";
+import { type GameflipListing } from "@prisma/client";
 
 const Page: NextPage = () => {
+  const utils = api.useContext();
+
+  const updateListingsCache = (
+    id: number,
+    update: Partial<GameflipListing>
+  ) => {
+    utils.user.listing.getAll.setInfiniteData(
+      {
+        pageSize: 25,
+      },
+      (data) => {
+        if (!data) {
+          return {
+            pages: [],
+            pageParams: [],
+          };
+        }
+
+        return {
+          ...data,
+          pages: data.pages.map((page) => ({
+            ...page,
+            listings: page.listings.map((listing) => {
+              if (listing.id !== id) return listing;
+              return {
+                ...listing,
+                ...update,
+              };
+            }),
+          })),
+        };
+      }
+    );
+  };
+
   const { data: listingSummary } = api.user.listing.summary.useQuery();
   const {
     data: listingsData,
     fetchNextPage,
     hasNextPage,
+    refetch: refetchListings,
   } = api.user.listing.getAll.useInfiniteQuery(
     {
       pageSize: 25,
@@ -30,6 +69,46 @@ const Page: NextPage = () => {
       },
     }
   );
+
+  const { mutateAsync: deleteListing } = api.user.listing.delete.useMutation({
+    onSuccess: () => {
+      void refetchListings();
+      showToast("Deleted listing!");
+    },
+    onError: (e) => {
+      showToast(`${e.message ?? e ?? "Unknown error while deleting listing"}`);
+    },
+  });
+
+  const { mutateAsync: enableListing } = api.user.listing.enable.useMutation({
+    onMutate: ({ id }) => {
+      updateListingsCache(id, {
+        autoPost: true,
+      });
+    },
+    onSuccess: () => {
+      void refetchListings();
+      showToast("Enabled listing!");
+    },
+    onError: (e) => {
+      showToast(`${e.message ?? e ?? "Unknown error while enabling listing"}`);
+    },
+  });
+
+  const { mutateAsync: disableListing } = api.user.listing.disable.useMutation({
+    onMutate: ({ id }) => {
+      updateListingsCache(id, {
+        autoPost: false,
+      });
+    },
+    onSuccess: () => {
+      void refetchListings();
+      showToast("Disabled listing!");
+    },
+    onError: (e) => {
+      showToast(`${e.message ?? e ?? "Unknown error while disabling listing"}`);
+    },
+  });
 
   const listings = listingsData?.pages.flatMap((page) => page.listings) ?? [];
 
@@ -76,6 +155,7 @@ const Page: NextPage = () => {
                 width={100}
                 height={100}
                 className="aspect-square w-full rounded-lg"
+                draggable={false}
               />
 
               <div className="flex flex-col gap-y-1">
@@ -83,6 +163,24 @@ const Page: NextPage = () => {
                 <span className="inline-flex items-center gap-x-1 text-sm text-foreground/70">
                   <DollarSign className="h-4 w-4" /> {l.priceInCents / 100}
                 </span>
+              </div>
+
+              <div className="flex flex-row items-center justify-between gap-x-4 md:justify-normal">
+                <Link href={`/app/listings/${l.id}`}>
+                  <Edit size={20} />
+                </Link>
+                <Trash
+                  size={20}
+                  onClick={() => void deleteListing({ id: l.id })}
+                />
+                <Switch
+                  checked={l.autoPost}
+                  onCheckedChange={(c) =>
+                    void (c
+                      ? enableListing({ id: l.id })
+                      : disableListing({ id: l.id }))
+                  }
+                />
               </div>
             </div>
           ))}

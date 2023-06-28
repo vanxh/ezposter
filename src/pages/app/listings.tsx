@@ -35,6 +35,41 @@ const Page: NextPage = () => {
     defaultValues: {},
   });
 
+  const utils = api.useContext();
+
+  const updateListingsCache = (
+    id: number,
+    update: Partial<GameflipListing>
+  ) => {
+    utils.user.listing.getAll.setInfiniteData(
+      {
+        pageSize: 25,
+      },
+      (data) => {
+        if (!data) {
+          return {
+            pages: [],
+            pageParams: [],
+          };
+        }
+
+        return {
+          ...data,
+          pages: data.pages.map((page) => ({
+            ...page,
+            listings: page.listings.map((listing) => {
+              if (listing.id !== id) return listing;
+              return {
+                ...listing,
+                ...update,
+              };
+            }),
+          })),
+        };
+      }
+    );
+  };
+
   const { data: listingSummary } = api.user.listing.summary.useQuery();
   const { data: listingsData, refetch: refetchListings } =
     api.user.listing.getAll.useQuery({
@@ -53,6 +88,11 @@ const Page: NextPage = () => {
   });
 
   const { mutateAsync: enableListing } = api.user.listing.enable.useMutation({
+    onMutate: ({ id }) => {
+      updateListingsCache(id, {
+        autoPost: true,
+      });
+    },
     onSuccess: () => {
       void refetchListings();
       showToast("Enabled listing!");
@@ -63,6 +103,11 @@ const Page: NextPage = () => {
   });
 
   const { mutateAsync: disableListing } = api.user.listing.disable.useMutation({
+    onMutate: ({ id }) => {
+      updateListingsCache(id, {
+        autoPost: false,
+      });
+    },
     onSuccess: () => {
       void refetchListings();
       showToast("Disabled listing!");
