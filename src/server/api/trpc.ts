@@ -2,7 +2,7 @@ import { initTRPC, type inferAsyncReturnType, TRPCError } from "@trpc/server";
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 import superjson from "superjson";
 import { ZodError } from "zod";
-import { getAuth } from "@clerk/nextjs/server";
+import { getAuth, clerkClient } from "@clerk/nextjs/server";
 import type {
   SignedInAuthObject,
   SignedOutAuthObject,
@@ -55,10 +55,19 @@ const isAuthedMiddleware = t.middleware(async ({ next, ctx }) => {
   });
 
   if (!user) {
+    const clerkUser = await clerkClient.users.getUser(ctx.auth.userId);
+
+    const email = clerkUser?.primaryEmailAddressId
+      ? clerkUser?.emailAddresses.find(
+          (e) => e.id === clerkUser?.primaryEmailAddressId
+        )?.emailAddress
+      : undefined;
+
     user = await ctx.prisma.user.create({
       data: {
         clerkId: ctx.auth.userId,
-        email: ctx.auth.user?.emailAddresses.at(0)?.emailAddress,
+        email,
+        username: clerkUser?.username,
       },
     });
   }

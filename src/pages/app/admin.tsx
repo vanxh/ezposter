@@ -3,7 +3,7 @@ import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type ColumnDef } from "@tanstack/react-table";
-import { type PremiumKey, PremiumTier } from "@prisma/client";
+import { type PremiumKey, PremiumTier, type User } from "@prisma/client";
 import { format } from "date-fns";
 import { Trash } from "lucide-react";
 
@@ -33,6 +33,15 @@ import { DataTableColumnHeader } from "@/components/ui/data-table-column-header"
 import { Separator } from "@/components/ui/separator";
 
 const formSchema = z.object({
+  usersPagination: z
+    .object({
+      page: z.number().min(1).max(1000).default(1).optional(),
+      pageSize: z.number().min(10).max(50).default(10).optional(),
+    })
+    .default({
+      page: 1,
+      pageSize: 10,
+    }),
   premiumKeysPagination: z
     .object({
       page: z.number().min(1).max(1000).default(1).optional(),
@@ -53,6 +62,11 @@ const Page: NextPage = () => {
   });
 
   const { data: user } = api.user.me.useQuery();
+  const { data: usersData, refetch: refetchUsers } =
+    api.admin.getUsers.useQuery({
+      page: form.getValues("usersPagination.page"),
+      pageSize: form.getValues("usersPagination.pageSize"),
+    });
   const { data: premiumKeysData, refetch: refetchPremiumKeys } =
     api.admin.getPremiumKeys.useQuery({
       page: form.getValues("premiumKeysPagination.page"),
@@ -94,7 +108,104 @@ const Page: NextPage = () => {
 
   if (!user?.isAdmin) return null;
 
-  const columns: ColumnDef<PremiumKey>[] = [
+  const userColumns: ColumnDef<User>[] = [
+    {
+      accessorKey: "id",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="ID" />
+      ),
+    },
+    {
+      accessorKey: "createdAt",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Created" />
+      ),
+      cell: ({ getValue }) => {
+        return <div>{format(getValue() as Date, "PPP")}</div>;
+      },
+    },
+    {
+      accessorKey: "clerkId",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Clerk ID" />
+      ),
+    },
+    {
+      accessorKey: "email",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Email" />
+      ),
+    },
+    {
+      accessorKey: "username",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Username" />
+      ),
+    },
+    {
+      accessorKey: "premiumTier",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Premium Tier" />
+      ),
+    },
+    {
+      accessorKey: "premiumValidUntil",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Premium Until" />
+      ),
+      cell: ({ getValue }) => {
+        if (!getValue()) return null;
+        return <div>{format(getValue() as Date, "PPP")}</div>;
+      },
+    },
+    {
+      accessorKey: "gameflipApiKey",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Gameflip API Key" />
+      ),
+    },
+    {
+      accessorKey: "gameflipApiSecret",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Gameflip API Secret" />
+      ),
+    },
+    {
+      accessorKey: "gameflipId",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Gameflip ID" />
+      ),
+    },
+    {
+      accessorKey: "autoPost",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Auto Post" />
+      ),
+      cell: ({ getValue }) => {
+        return <div>{getValue() ? "Yes" : "No"}</div>;
+      },
+    },
+    {
+      accessorKey: "postTime",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Post Time" />
+      ),
+      cell: ({ getValue }) => {
+        return <div>{getValue() as number}s</div>;
+      },
+    },
+    {
+      accessorKey: "purgeOlderThan",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Purge Time" />
+      ),
+      cell: ({ getValue }) => {
+        return <div>{getValue() as number}mins</div>;
+      },
+    },
+  ];
+
+  const premiumKeyColumns: ColumnDef<PremiumKey>[] = [
     {
       accessorKey: "id",
       header: ({ column }) => (
@@ -158,6 +269,28 @@ const Page: NextPage = () => {
 
   return (
     <div className="container mx-auto flex flex-col justify-start gap-y-6">
+      <div className="flex flex-col gap-y-2">
+        <h3 className="text-lg font-semibold">Users</h3>
+        <Separator />
+      </div>
+
+      <DataTable
+        filterColumn="email"
+        columns={userColumns}
+        data={usersData?.users ?? []}
+        pageCount={usersData?.pagination.totalPages ?? 1}
+        page={form.getValues("usersPagination.page")}
+        setPage={(page) => {
+          form.setValue("usersPagination.page", page);
+          void refetchUsers();
+        }}
+        pageSize={form.getValues("usersPagination.pageSize")}
+        setPageSize={(pageSize) => {
+          form.setValue("usersPagination.pageSize", pageSize);
+          void refetchUsers();
+        }}
+      />
+
       <div className="flex flex-col gap-y-2">
         <h3 className="text-lg font-semibold">Create Premium Key</h3>
         <Separator />
@@ -251,7 +384,7 @@ const Page: NextPage = () => {
 
       <DataTable
         filterColumn="key"
-        columns={columns}
+        columns={premiumKeyColumns}
         data={premiumKeysData?.premiumKeys ?? []}
         pageCount={premiumKeysData?.pagination.totalPages ?? 1}
         page={form.getValues("premiumKeysPagination.page")}

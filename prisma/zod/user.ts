@@ -8,6 +8,7 @@ export const UserModel = z.object({
   updatedAt: z.date(),
   clerkId: z.string(),
   email: z.string().nullish(),
+  username: z.string().nullish(),
   isAdmin: z.boolean(),
   premiumTier: z.nativeEnum(PremiumTier),
   premiumValidUntil: z.date().nullish(),
