@@ -28,6 +28,20 @@ const MyApp: AppType = ({ Component, pageProps }) => {
             content="Autopost your gameflip listings"
           />
           <meta property="og:image" content="/api/og" />
+          <meta property="og:url" content="https://ezposter.xyz" />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:site" content="@Vanxhh" />
+          <meta name="twitter:creator" content="@Vanxhh" />
+          <meta name="twitter:title" content="EZ Poster" />
+          <meta
+            name="twitter:description"
+            content="Autopost your gameflip listings"
+          />
+          <meta name="twitter:image" content="/api/og" />
+          <meta
+            name="viewport"
+            content="width=device-width, user-scalable=no"
+          />
         </Head>
 
         <div
