@@ -6,7 +6,12 @@ import {
   gameflipProcedure,
 } from "@/server/api/trpc";
 import { listingRouter } from "@/server/api/routers/user/listing";
-import { getProfile } from "@/utils/gfapi";
+import {
+  getListingLimit,
+  getProfile,
+  recommendedPostTime,
+  recommendedPurgeTime,
+} from "@/utils/gfapi";
 import { isPremium } from "@/utils/db";
 import { MIN_POST_INTERVAL_IN_SECONDS } from "@/constants";
 import AutoPostQueue from "@/pages/api/autopost";
@@ -141,7 +146,12 @@ export const userRouter = createTRPCRouter({
         gameflipApiSecret: ctx.user.gameflipApiSecret,
       });
 
-      return gameflipProfile;
+      return {
+        gameflipProfile,
+        listingLimit: getListingLimit(gameflipProfile.sell),
+        recommendedPostTime: recommendedPostTime(gameflipProfile.sell),
+        recommendedPurgeTime: recommendedPurgeTime(gameflipProfile.sell),
+      };
     }),
 
   syncAutoPost: protectedProcedure

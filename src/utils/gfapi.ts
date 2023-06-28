@@ -83,3 +83,48 @@ export const getProfile = async (
 
   return GameflipProfileSchema.parse(data.data);
 };
+
+export const getListingLimit = (nSell: number) => {
+  if (nSell < 10) {
+    return 15;
+  }
+  if (nSell >= 10 && nSell < 50) {
+    return 50;
+  }
+  if (nSell >= 50 && nSell < 100) {
+    return 100;
+  }
+  if (nSell >= 100 && nSell < 500) {
+    return 500;
+  }
+  if (nSell >= 500 && nSell < 1000) {
+    return 1000;
+  }
+  if (nSell >= 1000 && nSell < 2000) {
+    return 2500;
+  }
+  return 5000;
+};
+
+// post time in seconds
+export const recommendedPostTime = (nSell: number): number => {
+  const listingLimit = getListingLimit(nSell);
+
+  if (listingLimit === 2500) {
+    return 40;
+  }
+  if (listingLimit === 5000) {
+    return 30;
+  }
+
+  return (recommendedPurgeTime(nSell) * 60) / listingLimit;
+};
+
+// purge time in mins
+export const recommendedPurgeTime = (nSell: number): number => {
+  const listingLimit = getListingLimit(nSell);
+
+  return listingLimit <= 1000
+    ? 24 * 60
+    : (listingLimit * recommendedPostTime(nSell)) / 60;
+};
