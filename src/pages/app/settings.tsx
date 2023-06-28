@@ -50,7 +50,6 @@ const Page: NextPage = () => {
     },
     refetchOnWindowFocus: false,
     refetchOnMount: false,
-    refetchOnReconnect: false,
   });
   const { data: gameflipData, refetch: refetchGameflipProfile } =
     api.user.getGameflipProfile.useQuery(undefined, {
