@@ -1,5 +1,6 @@
 import { type NextPage } from "next";
 import Link from "next/link";
+import { type GameflipListing } from "@prisma/client";
 import { DollarSign, Edit, Trash } from "lucide-react";
 import InfiniteScroll from "react-infinite-scroll-component";
 
@@ -10,7 +11,6 @@ import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { showToast } from "@/components/ui/use-toast";
-import { type GameflipListing } from "@prisma/client";
 
 const Page: NextPage = () => {
   const utils = api.useContext();
