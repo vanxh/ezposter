@@ -197,15 +197,13 @@ const Page: NextPage = () => {
                 <FormItem>
                   <FormLabel>Price (in USD)</FormLabel>
                   <FormControl>
-                    <div>
-                      <Input
-                        type="number"
-                        placeholder="Enter listing price"
-                        step={0.01}
-                        value={field.value}
-                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                      />
-                    </div>
+                    <Input
+                      type="number"
+                      placeholder="Enter listing price"
+                      step="any"
+                      value={field.value}
+                      onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                    />
                   </FormControl>
                   <FormDescription>
                     The price of your listing. The minimum price is $0.75 and
