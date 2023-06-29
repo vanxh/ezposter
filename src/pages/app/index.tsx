@@ -171,6 +171,7 @@ const Page: NextPage = () => {
                 </Link>
                 <Trash
                   size={20}
+                  className="cursor-pointer"
                   onClick={() => void deleteListing({ id: l.id })}
                 />
                 <Switch
