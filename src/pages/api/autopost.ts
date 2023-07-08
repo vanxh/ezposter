@@ -3,7 +3,7 @@ import { type GameflipListing } from "@prisma/client";
 
 import { prisma } from "@/server/db";
 import { isGameflipConnected, isPremium } from "@/utils/db";
-import { createListingQuery } from "@/utils/gfapi";
+import { createListingQuery, postListing } from "@/utils/gfapi";
 
 export default Queue("api/autopost", async (userId: number) => {
   console.log(`[${new Date().toLocaleTimeString()}] User ${userId} auto post`);
@@ -36,5 +36,22 @@ export default Queue("api/autopost", async (userId: number) => {
   ] as GameflipListing;
   const listingQuery = createListingQuery(listing, gfAuth);
 
-  console.log(listingQuery);
+  const listingId = await postListing(
+    listingQuery,
+    listing.images as string[],
+    gfAuth
+  );
+
+  await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      nPosted: {
+        increment: 1,
+      },
+    },
+  });
+
+  console.log(`Auto post job for ${user.id}: posted listing ${listingId}`);
 });
