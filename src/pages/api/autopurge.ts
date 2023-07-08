@@ -46,7 +46,9 @@ export default Queue("api/autopurge", async (userId: number) => {
           id: user.id,
         },
         data: {
-          nPurged: user.nPurged + listings.length,
+          nPurged: {
+            increment: 1,
+          },
         },
       });
     } catch (e) {
