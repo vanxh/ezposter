@@ -170,14 +170,20 @@ const Page: NextPage = () => {
             <CardContent>
               <div className="text-2xl font-bold">{user?.nPurged}</div>
               <p className="text-xs text-muted-foreground">
-                Purging listings older than{" "}
-                {formatDuration(
-                  intervalToDuration({
-                    start: 0,
-                    end: user?.purgeOlderThan
-                      ? user.purgeOlderThan * 60 * 1000
-                      : 0,
-                  })
+                {user.autoPost ? (
+                  <>
+                    Purging listings older than{" "}
+                    {formatDuration(
+                      intervalToDuration({
+                        start: 0,
+                        end: user?.purgeOlderThan
+                          ? user.purgeOlderThan * 60 * 1000
+                          : 0,
+                      })
+                    )}
+                  </>
+                ) : (
+                  <>Auto purging disabled</>
                 )}
               </p>
             </CardContent>
