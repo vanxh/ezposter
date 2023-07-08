@@ -128,3 +128,44 @@ export const recommendedPurgeTime = (nSell: number): number => {
     ? 24 * 60
     : (listingLimit * recommendedPostTime(nSell)) / 60;
 };
+
+export const GameflipListingSchema = z.object({
+  id: z.string(),
+  kind: z.string().default("item"),
+  description: z.string().default(""),
+  owner: z.string(),
+  category: z.string().default("DIGITAL_INGAME"),
+  name: z.string(),
+  platform: z.string().default("unknown"),
+  price: z.number(),
+  accept_currency: z.string().default("USD"),
+  upc: z.string(),
+  cognitoidp_client: z.string(),
+  tags: z.array(z.string()).default([]),
+  digital: z.boolean().default(true),
+  digital_region: z.string().default("none"),
+  digital_deliverable: z.string().default("transfer"),
+  photo: z.record(
+    z.string(),
+    z.object({
+      display_order: z.number().default(1),
+      status: z.string().default("active"),
+      view_url: z.string(),
+    })
+  ),
+  status: z.string().default("onsale"),
+  shipping_fee: z.number().default(0),
+  shipping_paid_by: z.string().default("seller"),
+  shipping_within_days: z.number().default(3),
+  expire_in_days: z.number().default(7),
+  expiration: z.string().datetime(),
+  visibility: z.string().default("public"),
+  seller_id_verified: z.string().datetime().nullish(),
+  seller_languages: z.array(z.string()).default([]),
+  seller_score: z.number().default(0),
+  seller_ratings: z.number().default(0),
+  seller_online_until: z.string().datetime().nullish(),
+  created: z.string().datetime(),
+  updated: z.string().datetime(),
+  version: z.string().default("2"),
+});
