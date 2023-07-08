@@ -15,7 +15,8 @@ export default Queue("api/autopurge", async (userId: number) => {
       id: userId,
     },
   });
-  if (!user || !isPremium(user) || !isGameflipConnected(user)) return;
+  if (!user || !isPremium(user) || !user.autoPost || !isGameflipConnected(user))
+    return;
 
   const gfAuth = {
     gameflipApiKey: user.gameflipApiKey as string,
