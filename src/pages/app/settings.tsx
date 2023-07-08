@@ -165,7 +165,9 @@ const Page: NextPage = () => {
                 The number of listings you have saved.
               </FormDescription>
             </div>
+          </div>
 
+          <div className="grid grid-cols-2 gap-x-6 gap-y-6">
             <div className="space-y-2">
               <Label>Posted</Label>
               <Input value={user?.nPosted} readOnly />
