@@ -2,7 +2,7 @@ import { type NextPage } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { type GameflipListing } from "@prisma/client";
-import { DollarSign, Edit, PlusCircle, Trash } from "lucide-react";
+import { DollarSign, Edit, MinusCircle, PlusCircle, Trash } from "lucide-react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { formatDuration, intervalToDuration } from "date-fns";
 
@@ -165,7 +165,7 @@ const Page: NextPage = () => {
               <CardTitle className="text-sm font-medium">
                 Total Purged
               </CardTitle>
-              <PlusCircle className="h-4 w-4 text-muted-foreground" />
+              <MinusCircle className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{user?.nPurged}</div>
