@@ -40,6 +40,15 @@ export default Queue("api/autopurge", async (userId: number) => {
   for await (const listing of listings) {
     try {
       await deleteListing(listing.id, gfAuth);
+
+      await prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          nPurged: user.nPurged + listings.length,
+        },
+      });
     } catch (e) {
       console.error(
         `Auto purge job for ${user.id} failed to delete listing ${
@@ -49,15 +58,6 @@ export default Queue("api/autopurge", async (userId: number) => {
     }
     await wait(1000);
   }
-
-  await prisma.user.update({
-    where: {
-      id: user.id,
-    },
-    data: {
-      nPurged: user.nPurged + listings.length,
-    },
-  });
 
   console.log(
     `Auto purge job for ${user.id}: Deleted ${listings.length} listings`
