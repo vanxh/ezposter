@@ -2,8 +2,8 @@ import { Queue } from "quirrel/next";
 import { promisify } from "util";
 
 import { prisma } from "@/server/db";
+import GFApi from "@/lib/gfapi";
 import { isGameflipConnected, isPremium } from "@/utils/db";
-import { deleteListing, searchListings } from "@/utils/gfapi";
 
 const wait = promisify(setTimeout);
 
@@ -18,28 +18,24 @@ export default Queue("api/autopurge", async (userId: number) => {
   if (!user || !isPremium(user) || !user.autoPost || !isGameflipConnected(user))
     return;
 
-  const gfAuth = {
+  const gfapi = new GFApi({
     gameflipApiKey: user.gameflipApiKey as string,
     gameflipApiSecret: user.gameflipApiSecret as string,
-  };
-
-  const listings = await searchListings(
-    {
-      owner: user.gameflipId as string,
-      status: "onsale",
-      sort: "created:asc",
-      visibility: "public",
-      limit: "50",
-      created: `,${new Date(
-        Date.now() - user.purgeOlderThan * 60 * 1000
-      ).toISOString()}`,
-    },
-    gfAuth
-  );
+  });
+  const listings = await gfapi.searchListings({
+    owner: user.gameflipId as string,
+    status: "onsale",
+    sort: "created:asc",
+    visibility: "public",
+    limit: "50",
+    created: `,${new Date(
+      Date.now() - user.purgeOlderThan * 60 * 1000
+    ).toISOString()}`,
+  });
 
   for await (const listing of listings) {
     try {
-      await deleteListing(listing.id, gfAuth);
+      await gfapi.deleteListing(listing.id);
 
       await prisma.user.update({
         where: {

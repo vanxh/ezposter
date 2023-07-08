@@ -1,21 +1,24 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import z, { ZodError } from "zod";
-import Speakeasy from "speakeasy";
+import z from "zod";
 
-import { GAMEFLIP_API_BASE_URL } from "@/constants";
-import { fromZodError } from "zod-validation-error";
 import { type GameflipListing } from "@prisma/client";
 
-export const authHeader = (apiKey: string, apiSecret: string) =>
-  `GFAPI ${apiKey}:${Speakeasy.totp({
-    encoding: "base32",
-    algorithm: "sha1",
-    digits: 6,
-    secret: apiSecret,
-  })}`;
+export type AuthProps = {
+  gameflipApiKey: string;
+  gameflipApiSecret: string;
+  gameflipId?: string;
+};
 
-const throwIfError = (data: {
+export interface KeyValuePair<T> {
+  [key: string]: T;
+}
+
+export type JsonPatch = {
+  op: string;
+  path: string;
+  value: string | number;
+};
+
+export const throwIfError = (data: {
   error?: {
     message?: string;
   };
@@ -26,16 +29,6 @@ const throwIfError = (data: {
 
   return data;
 };
-
-type AuthProps = {
-  gameflipApiKey: string;
-  gameflipApiSecret: string;
-  gameflipId?: string;
-};
-
-interface KeyValuePair<T> {
-  [key: string]: T;
-}
 
 export const GameflipProfileSchema = z.object({
   owner: z.string(),
@@ -74,22 +67,6 @@ export const GameflipProfileSchema = z.object({
   score: z.number().default(0),
   display_name_updated_cooldown: z.number().default(0),
 });
-
-export const getProfile = async (
-  id = "me",
-  { gameflipApiKey, gameflipApiSecret }: AuthProps
-) => {
-  const res = await fetch(`${GAMEFLIP_API_BASE_URL}/account/${id}/profile`, {
-    headers: {
-      Authorization: authHeader(gameflipApiKey, gameflipApiSecret),
-    },
-  });
-  const data = await res.json();
-
-  throwIfError(data as unknown as { error?: { message?: string } });
-
-  return GameflipProfileSchema.parse(data.data);
-};
 
 export const getListingLimit = (nSell: number) => {
   if (nSell < 10) {
@@ -184,106 +161,6 @@ export const SearchGameflipListingsSchema = z.object({
   next_page: z.string().url().nullish(),
 });
 
-export const searchListings = async (
-  search: KeyValuePair<string> | string,
-  { gameflipApiKey, gameflipApiSecret }: AuthProps,
-  prev: z.infer<typeof GameflipListingsSchema> = []
-): Promise<z.infer<typeof GameflipListingsSchema>> => {
-  try {
-    let query;
-    if (typeof search === "string") {
-      query = search;
-    } else {
-      query = new URLSearchParams();
-      // eslint-disable-next-line no-restricted-syntax
-      for (const [key, value] of Object.entries(search)) {
-        query.append(key, value);
-      }
-    }
-
-    const res = await fetch(
-      `${GAMEFLIP_API_BASE_URL}/listing?${query.toString()}`,
-      {
-        headers: {
-          Authorization: authHeader(gameflipApiKey, gameflipApiSecret),
-        },
-      }
-    );
-    const data = (await res.json()) as z.infer<
-      typeof SearchGameflipListingsSchema
-    >;
-
-    throwIfError(data as unknown as { error?: { message?: string } });
-
-    if (data.next_page) {
-      return searchListings(
-        data.next_page.split("?")[1] || "",
-        {
-          gameflipApiKey,
-          gameflipApiSecret,
-        },
-        [...prev, ...data.data]
-      );
-    }
-
-    return [...prev, ...data.data];
-  } catch (e) {
-    if (e instanceof ZodError) {
-      throw fromZodError(e);
-    }
-    throw e;
-  }
-};
-
-export const editListing = async (
-  listingId: string,
-  patch: {
-    op: string;
-    path: string;
-    value: string | number;
-  }[],
-  { gameflipApiKey, gameflipApiSecret }: AuthProps
-) => {
-  const res = await fetch(`${GAMEFLIP_API_BASE_URL}/listing/${listingId}`, {
-    method: "PATCH",
-    headers: {
-      Authorization: authHeader(gameflipApiKey, gameflipApiSecret),
-      "Content-Type": "application/json-patch+json",
-    },
-    body: JSON.stringify(patch),
-  });
-
-  const data = await res.json();
-
-  throwIfError(data as unknown as { error?: { message?: string } });
-
-  return data as unknown;
-};
-
-export const deleteListing = async (
-  listingId: string,
-  { gameflipApiKey, gameflipApiSecret }: AuthProps
-) => {
-  await editListing(
-    listingId,
-    [
-      {
-        op: "replace",
-        path: "/status",
-        value: "draft",
-      },
-    ],
-    { gameflipApiKey, gameflipApiSecret }
-  );
-
-  await fetch(`${GAMEFLIP_API_BASE_URL}/listing/${listingId}`, {
-    method: "DELETE",
-    headers: {
-      Authorization: authHeader(gameflipApiKey, gameflipApiSecret),
-    },
-  });
-};
-
 export const createListingQuery = (
   listing: GameflipListing,
   { gameflipId }: AuthProps
@@ -311,98 +188,4 @@ export const createListingQuery = (
     digital_deliverable: "transfer",
     visibility: "public",
   };
-};
-
-export const postListing = async (
-  query: ReturnType<typeof createListingQuery>,
-  images: string[],
-  { gameflipApiKey, gameflipApiSecret }: AuthProps
-) => {
-  const postDraftRes = await fetch(`${GAMEFLIP_API_BASE_URL}/listing`, {
-    method: "POST",
-    headers: {
-      Authorization: authHeader(gameflipApiKey, gameflipApiSecret),
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(query),
-  });
-
-  const postDraftData = await postDraftRes.json();
-
-  throwIfError(postDraftData as unknown as { error?: { message?: string } });
-
-  const postedId = postDraftData.data.id as string;
-
-  let idx = 1;
-  // eslint-disable-next-line no-restricted-syntax
-  for await (const image of images) {
-    const photoRes = await fetch(
-      `${GAMEFLIP_API_BASE_URL}/listing/${postedId}/photo`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: authHeader(gameflipApiKey, gameflipApiSecret),
-        },
-      }
-    );
-    const photoData = await photoRes.json();
-
-    throwIfError(photoData as unknown as { error?: { message?: string } });
-
-    const photoId = photoData.data.id as string;
-    const uploadUrl = photoData.data.upload_url as string;
-
-    const fetchImgRes = await fetch(image);
-    const imgBuffer = await fetchImgRes.arrayBuffer();
-
-    const uploadRes = await fetch(uploadUrl, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "image/png",
-      },
-      body: imgBuffer,
-    });
-
-    if (!uploadRes.ok) {
-      throw new Error(
-        `Failed to upload image: ${uploadRes.status} ${uploadRes.statusText}`
-      );
-    }
-
-    const patch = [
-      {
-        op: "replace",
-        path: `/photo/${photoId}/status`,
-        value: "active",
-      },
-      {
-        op: "replace",
-        path: `/photo/${photoId}/display_order`,
-        value: idx,
-      },
-    ];
-    if (idx === 1) {
-      patch.push({
-        op: "replace",
-        path: "/cover_photo",
-        value: photoId,
-      });
-    }
-    if (idx === images.length) {
-      patch.push({
-        op: "replace",
-        path: "/status",
-        value: "onsale",
-      });
-    }
-
-    await editListing(postedId, patch, {
-      gameflipApiKey,
-      gameflipApiSecret,
-    });
-
-    idx += 1;
-  }
-
-  return postedId;
 };

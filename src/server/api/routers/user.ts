@@ -6,9 +6,9 @@ import {
   gameflipProcedure,
 } from "@/server/api/trpc";
 import { listingRouter } from "@/server/api/routers/user/listing";
+import GFApi from "@/lib/gfapi";
 import {
   getListingLimit,
-  getProfile,
   recommendedPostTime,
   recommendedPurgeTime,
 } from "@/utils/gfapi";
@@ -82,7 +82,8 @@ export const userRouter = createTRPCRouter({
         };
       }
 
-      const gameflipProfile = await getProfile("me", input);
+      const gfapi = new GFApi(input);
+      const gameflipProfile = await gfapi.getMe();
 
       const update = await ctx.prisma.user.update({
         where: { id: ctx.user.id },
@@ -157,10 +158,11 @@ export const userRouter = createTRPCRouter({
     .query(async ({ ctx }) => {
       if (!ctx.user.gameflipApiKey || !ctx.user.gameflipApiSecret) return null;
 
-      const gameflipProfile = await getProfile("me", {
+      const gfapi = new GFApi({
         gameflipApiKey: ctx.user.gameflipApiKey,
         gameflipApiSecret: ctx.user.gameflipApiSecret,
       });
+      const gameflipProfile = await gfapi.getMe();
 
       return {
         gameflipProfile,
