@@ -1,8 +1,16 @@
 import { Queue } from "quirrel/next";
 
-export default Queue("api/autopost", async (userId) => {
+import { prisma } from "@/server/db";
+import { isGameflipConnected, isPremium } from "@/utils/db";
+
+export default Queue("api/autopost", async (userId: number) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+  if (!user || !isPremium(user) || !isGameflipConnected(user)) return;
+
   await new Promise((resolve) => setTimeout(resolve, 1000));
-  console.log(
-    `[${new Date().toLocaleTimeString()}] User ${userId as string} auto post`
-  );
+  console.log(`[${new Date().toLocaleTimeString()}] User ${user.id} auto post`);
 });

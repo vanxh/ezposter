@@ -10,7 +10,7 @@ import type {
 import { type User } from "@prisma/client";
 
 import { prisma } from "@/server/db";
-import { isPremium } from "@/utils/db";
+import { isGameflipConnected, isPremium } from "@/utils/db";
 
 interface AuthContext {
   auth: SignedInAuthObject | SignedOutAuthObject;
@@ -81,7 +81,7 @@ const isAuthedMiddleware = t.middleware(async ({ next, ctx }) => {
 });
 
 const isGameflipConnectedMiddleware = t.middleware(async ({ next, ctx }) => {
-  if (!ctx.user?.gameflipApiKey || !ctx.user?.gameflipApiSecret) {
+  if (!ctx.user || !isGameflipConnected(ctx.user)) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
       message: "You must connect your Gameflip account to perform this action.",
