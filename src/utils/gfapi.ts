@@ -5,6 +5,7 @@ import Speakeasy from "speakeasy";
 
 import { GAMEFLIP_API_BASE_URL } from "@/constants";
 import { fromZodError } from "zod-validation-error";
+import { type GameflipListing } from "@prisma/client";
 
 export const authHeader = (apiKey: string, apiSecret: string) =>
   `GFAPI ${apiKey}:${Speakeasy.totp({
@@ -281,4 +282,127 @@ export const deleteListing = async (
       Authorization: authHeader(gameflipApiKey, gameflipApiSecret),
     },
   });
+};
+
+export const createListingQuery = (
+  listing: GameflipListing,
+  { gameflipId }: AuthProps
+) => {
+  return {
+    kind: "item",
+    owner: gameflipId,
+    status: "draft",
+    name: listing.name,
+    description: listing.description,
+    category: listing.category,
+    platform: listing.platform,
+    upc: listing.upc,
+    price: listing.priceInCents,
+    accept_currency: listing.accept_currency,
+    shipping_within_days: listing.shippingWithinDays,
+    expire_in_days: listing.expiresWithinDays,
+    shipping_fee: 0,
+    shipping_paid_by: "seller",
+    shipping_predefined_package: "None",
+    cognitodp_client: "marketplace",
+    tags: listing.tags,
+    digital: true,
+    digital_region: "none",
+    digital_deliverable: "transfer",
+    visibility: "public",
+  };
+};
+
+export const postListing = async (
+  query: ReturnType<typeof createListingQuery>,
+  images: string[],
+  { gameflipApiKey, gameflipApiSecret }: AuthProps
+) => {
+  const postDraftRes = await fetch(`${GAMEFLIP_API_BASE_URL}/listing`, {
+    method: "POST",
+    headers: {
+      Authorization: authHeader(gameflipApiKey, gameflipApiSecret),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(query),
+  });
+
+  const postDraftData = await postDraftRes.json();
+
+  throwIfError(postDraftData as unknown as { error?: { message?: string } });
+
+  const postedId = postDraftData.data.id as string;
+
+  let idx = 1;
+  // eslint-disable-next-line no-restricted-syntax
+  for await (const image of images) {
+    const photoRes = await fetch(
+      `${GAMEFLIP_API_BASE_URL}/listing/${postedId}/photo`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: authHeader(gameflipApiKey, gameflipApiSecret),
+        },
+      }
+    );
+    const photoData = await photoRes.json();
+
+    throwIfError(photoData as unknown as { error?: { message?: string } });
+
+    const photoId = photoData.data.id as string;
+    const uploadUrl = photoData.data.upload_url as string;
+
+    const fetchImgRes = await fetch(image);
+    const imgBuffer = await fetchImgRes.arrayBuffer();
+
+    const uploadRes = await fetch(uploadUrl, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "image/png",
+      },
+      body: imgBuffer,
+    });
+
+    if (!uploadRes.ok) {
+      throw new Error(
+        `Failed to upload image: ${uploadRes.status} ${uploadRes.statusText}`
+      );
+    }
+
+    const patch = [
+      {
+        op: "replace",
+        path: `/photo/${photoId}/status`,
+        value: "active",
+      },
+      {
+        op: "replace",
+        path: `/photo/${photoId}/display_order`,
+        value: idx,
+      },
+    ];
+    if (idx === 1) {
+      patch.push({
+        op: "replace",
+        path: "/cover_photo",
+        value: photoId,
+      });
+    }
+    if (idx === images.length) {
+      patch.push({
+        op: "replace",
+        path: "/status",
+        value: "onsale",
+      });
+    }
+
+    await editListing(postedId, patch, {
+      gameflipApiKey,
+      gameflipApiSecret,
+    });
+
+    idx += 1;
+  }
+
+  return postedId;
 };
