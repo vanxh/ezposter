@@ -58,7 +58,14 @@ export default class GFApi {
   }
 
   private async _post<T>(url: string, options: RequestInit = {}): Promise<T> {
-    return this._fetch<T>(url, { ...options, method: "POST" });
+    return this._fetch<T>(url, {
+      ...options,
+      method: "POST",
+      headers: {
+        ...options.headers,
+        "Content-Type": "application/json",
+      },
+    });
   }
 
   private async _delete<T>(url: string, options: RequestInit = {}): Promise<T> {
