@@ -74,7 +74,7 @@ model GameflipListing {
 
     kind               String @default("item")
     name               String
-    description        String
+    description        String @db.LongText
     category           String @default("DIGITAL_INGAME")
     platform           String @default("unknown")
     upc                String @default("GFFORTNITE")
