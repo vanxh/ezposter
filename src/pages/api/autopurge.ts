@@ -21,7 +21,6 @@ export default Queue("api/autopurge", async (userId: number) => {
   const gfAuth = {
     gameflipApiKey: user.gameflipApiKey as string,
     gameflipApiSecret: user.gameflipApiSecret as string,
-    gameflipId: user.gameflipId as string,
   };
 
   const listings = await searchListings(

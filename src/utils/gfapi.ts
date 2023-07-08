@@ -185,7 +185,7 @@ export const SearchGameflipListingsSchema = z.object({
 
 export const searchListings = async (
   search: KeyValuePair<string> | string,
-  { gameflipApiKey, gameflipApiSecret, gameflipId }: AuthProps,
+  { gameflipApiKey, gameflipApiSecret }: AuthProps,
   prev: z.infer<typeof GameflipListingsSchema> = []
 ): Promise<z.infer<typeof GameflipListingsSchema>> => {
   try {
@@ -200,14 +200,11 @@ export const searchListings = async (
       }
     }
 
-    const res = await fetch(
-      `${GAMEFLIP_API_BASE_URL}/account/${gameflipId || "me"}/profile`,
-      {
-        headers: {
-          Authorization: authHeader(gameflipApiKey, gameflipApiSecret),
-        },
-      }
-    );
+    const res = await fetch(`/listing?${query.toString()}`, {
+      headers: {
+        Authorization: authHeader(gameflipApiKey, gameflipApiSecret),
+      },
+    });
     const data = (await res.json()) as z.infer<
       typeof SearchGameflipListingsSchema
     >;
@@ -221,7 +218,6 @@ export const searchListings = async (
         {
           gameflipApiKey,
           gameflipApiSecret,
-          gameflipId,
         },
         [...prev, ...data.data]
       );
