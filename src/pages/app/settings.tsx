@@ -167,20 +167,6 @@ const Page: NextPage = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-x-6 gap-y-6">
-            <div className="space-y-2">
-              <Label>Posted</Label>
-              <Input value={user?.nPosted} readOnly />
-              <FormDescription>The number of listings posted.</FormDescription>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Purged</Label>
-              <Input value={user?.nPurged} readOnly />
-              <FormDescription>The number of listings purged.</FormDescription>
-            </div>
-          </div>
-
           <FormField
             control={form.control}
             name="autoPost"

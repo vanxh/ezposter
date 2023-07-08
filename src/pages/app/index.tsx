@@ -1,16 +1,18 @@
 import { type NextPage } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { type GameflipListing } from "@prisma/client";
-import { DollarSign, Edit, Trash } from "lucide-react";
+import { DollarSign, Edit, PlusCircle, Trash } from "lucide-react";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { formatDuration, intervalToDuration } from "date-fns";
 
 import { api } from "@/utils/api";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { showToast } from "@/components/ui/use-toast";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 const Page: NextPage = () => {
   const utils = api.useContext();
@@ -47,6 +49,8 @@ const Page: NextPage = () => {
       }
     );
   };
+
+  const { data: user } = api.user.me.useQuery();
 
   const { data: listingSummary } = api.user.listing.summary.useQuery();
   const {
@@ -126,6 +130,60 @@ const Page: NextPage = () => {
         </div>
         <Separator />
       </div>
+
+      {user && (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Total Posted
+              </CardTitle>
+              <PlusCircle className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{user?.nPosted}</div>
+              <p className="text-xs text-muted-foreground">
+                {user.autoPost ? (
+                  <>
+                    Posting 1 every{" "}
+                    {formatDuration(
+                      intervalToDuration({
+                        start: 0,
+                        end: user?.postTime ? user.postTime * 1000 : 0,
+                      })
+                    )}
+                  </>
+                ) : (
+                  <>Auto posting disabled</>
+                )}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Total Purged
+              </CardTitle>
+              <PlusCircle className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{user?.nPurged}</div>
+              <p className="text-xs text-muted-foreground">
+                Purging listings older than{" "}
+                {formatDuration(
+                  intervalToDuration({
+                    start: 0,
+                    end: user?.purgeOlderThan
+                      ? user.purgeOlderThan * 60 * 1000
+                      : 0,
+                  })
+                )}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       <InfiniteScroll
         dataLength={listings.length}
