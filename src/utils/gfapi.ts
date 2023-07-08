@@ -214,6 +214,7 @@ export const searchListings = async (
 
     throwIfError(data as unknown as { error?: { message?: string } });
 
+    console.log(data);
     if (data.next_page) {
       return searchListings(
         data.next_page.split("?")[1] || "",
