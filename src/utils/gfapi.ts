@@ -248,6 +248,7 @@ export const editListing = async (
     method: "PATCH",
     headers: {
       Authorization: authHeader(gameflipApiKey, gameflipApiSecret),
+      "Content-Type": "application/json-patch+json",
     },
     body: JSON.stringify(patch),
   });
