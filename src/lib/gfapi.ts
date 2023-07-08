@@ -10,7 +10,7 @@ import {
   type JsonPatch,
   throwIfError,
   GameflipProfileSchema,
-  type GameflipListingSchema,
+  GameflipListingSchema,
   type createListingQuery,
 } from "@/utils/gfapi";
 
@@ -101,6 +101,14 @@ export default class GFApi {
   public async getMe() {
     const data = await this._get<unknown>("/account/me/profile");
     return GameflipProfileSchema.parse(data);
+  }
+
+  public async getListing(id: string) {
+    const data = await this._get<{
+      data: unknown;
+    }>(`/listing/${id}`);
+
+    return GameflipListingSchema.parse(data.data);
   }
 
   public async searchListings(
