@@ -5,7 +5,11 @@ const config = {
   reactStrictMode: true,
 
   images: {
-    domains: ["images.clerk.dev", "uploadthing.com"],
+    domains: [
+      "images.clerk.dev",
+      "uploadthing.com",
+      "production-gameflipusercontent.fingershock.com",
+    ],
   },
 
   i18n: {

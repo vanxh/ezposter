@@ -5,6 +5,7 @@ import {
   createTRPCRouter,
   protectedProcedure,
   premiumProcedure,
+  gameflipProcedure,
 } from "@/server/api/trpc";
 import {
   GAMEFLIP_CATEGORIES,
@@ -12,6 +13,7 @@ import {
   GAMEFLIP_UPCS,
   MAX_LISTINGS_PER_USER,
 } from "@/constants";
+import GFApi from "@/lib/gfapi";
 
 export const listingRouter = createTRPCRouter({
   summary: protectedProcedure.query(async ({ ctx }) => {
@@ -192,6 +194,26 @@ export const listingRouter = createTRPCRouter({
         where: { id: input.id },
         data: { autoPost: false },
       });
+
+      return listing;
+    }),
+
+  import: gameflipProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const gfapi = new GFApi({
+        gameflipApiKey: ctx.user.gameflipApiKey as string,
+        gameflipApiSecret: ctx.user.gameflipApiSecret as string,
+        gameflipId: ctx.user.gameflipId as string,
+      });
+
+      const listing = await gfapi.getListing(
+        input.id.split("/").pop() as string
+      );
 
       return listing;
     }),
