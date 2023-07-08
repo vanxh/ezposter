@@ -275,7 +275,7 @@ const Page: NextPage = () => {
                   <FormControl>
                     <div>
                       <Input
-                        placeholder="Enter listing tags."
+                        placeholder="Enter listing tags. Eg: Name:Test"
                         value={tagInput}
                         onChange={(e) => {
                           setTagInput(e.target.value);
@@ -296,6 +296,10 @@ const Page: NextPage = () => {
                   <FormDescription>
                     Tags help buyers find your listing. You can add up to 20
                     tags.
+                    <br />
+                    <span className="text-foreground/70">
+                      Press enter to add a tag.
+                    </span>
                   </FormDescription>
 
                   {field.value?.length > 0 && (
