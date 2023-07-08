@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import z from "zod";
+import z, { ZodError } from "zod";
 import Speakeasy from "speakeasy";
 
 import { GAMEFLIP_API_BASE_URL } from "@/constants";
+import { fromZodError } from "zod-validation-error";
 
 export const authHeader = (apiKey: string, apiSecret: string) =>
   `GFAPI ${apiKey}:${Speakeasy.totp({
@@ -28,7 +29,12 @@ const throwIfError = (data: {
 type AuthProps = {
   gameflipApiKey: string;
   gameflipApiSecret: string;
+  gameflipId?: string;
 };
+
+interface KeyValuePair<T> {
+  [key: string]: T;
+}
 
 export const GameflipProfileSchema = z.object({
   owner: z.string(),
@@ -169,3 +175,110 @@ export const GameflipListingSchema = z.object({
   updated: z.string().datetime(),
   version: z.string().default("2"),
 });
+
+export const GameflipListingsSchema = z.array(GameflipListingSchema);
+
+export const SearchGameflipListingsSchema = z.object({
+  data: GameflipListingsSchema,
+  next_page: z.string().url().nullish(),
+});
+
+export const searchListings = async (
+  search: KeyValuePair<string> | string,
+  { gameflipApiKey, gameflipApiSecret, gameflipId }: AuthProps,
+  prev: z.infer<typeof GameflipListingsSchema> = []
+): Promise<z.infer<typeof GameflipListingsSchema>> => {
+  try {
+    let query;
+    if (typeof search === "string") {
+      query = search;
+    } else {
+      query = new URLSearchParams();
+      // eslint-disable-next-line no-restricted-syntax
+      for (const [key, value] of Object.entries(search)) {
+        query.append(key, value);
+      }
+    }
+
+    const res = await fetch(
+      `${GAMEFLIP_API_BASE_URL}/account/${gameflipId || "me"}/profile`,
+      {
+        headers: {
+          Authorization: authHeader(gameflipApiKey, gameflipApiSecret),
+        },
+      }
+    );
+    const data = (await res.json()) as z.infer<
+      typeof SearchGameflipListingsSchema
+    >;
+
+    throwIfError(data as unknown as { error?: { message?: string } });
+
+    if (data.next_page) {
+      return searchListings(
+        data.next_page.split("?")[1] || "",
+        {
+          gameflipApiKey,
+          gameflipApiSecret,
+          gameflipId,
+        },
+        [...prev, ...data.data]
+      );
+    }
+
+    return [...prev, ...data.data];
+  } catch (e) {
+    if (e instanceof ZodError) {
+      throw fromZodError(e);
+    }
+    throw e;
+  }
+};
+
+export const editListing = async (
+  listingId: string,
+  patch: {
+    op: string;
+    path: string;
+    value: string | number;
+  }[],
+  { gameflipApiKey, gameflipApiSecret }: AuthProps
+) => {
+  const res = await fetch(`${GAMEFLIP_API_BASE_URL}/listing/${listingId}`, {
+    method: "PATCH",
+    headers: {
+      Authorization: authHeader(gameflipApiKey, gameflipApiSecret),
+    },
+    body: JSON.stringify(patch),
+  });
+
+  const data = await res.json();
+
+  throwIfError(data as unknown as { error?: { message?: string } });
+
+  return data as unknown;
+};
+
+export const deleteListing = async (
+  listingId: string,
+  { gameflipApiKey, gameflipApiSecret }: AuthProps
+) => {
+  await editListing(
+    listingId,
+    [
+      {
+        op: "replace",
+        path: "/status",
+        value: "draft",
+      },
+    ],
+    { gameflipApiKey, gameflipApiSecret }
+  );
+
+  await fetch(`${GAMEFLIP_API_BASE_URL}/listing/${listingId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: authHeader(gameflipApiKey, gameflipApiSecret),
+    },
+  });
+};

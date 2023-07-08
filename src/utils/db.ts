@@ -5,5 +5,5 @@ export const isPremium = (user: User) => {
 };
 
 export const isGameflipConnected = (user: User) => {
-  return !!user.gameflipApiKey && !!user.gameflipApiSecret;
+  return !!user.gameflipApiKey && !!user.gameflipApiSecret && !!user.gameflipId;
 };
