@@ -49,7 +49,6 @@ const Page: NextPage = () => {
       }
     },
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
   });
   const { data: gameflipData, refetch: refetchGameflipProfile } =
     api.user.getGameflipProfile.useQuery(undefined, {
@@ -147,23 +146,37 @@ const Page: NextPage = () => {
           onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-6"
         >
-          <div className="space-y-2">
-            <Label>User ID</Label>
-            <Input value={user?.id} readOnly />
-            <FormDescription>
-              Your user ID is used to identify your account.
-            </FormDescription>
-          </div>
+          <div className="grid grid-cols-1 gap-x-6 gap-y-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label>User ID</Label>
+              <Input value={user?.id} readOnly />
+              <FormDescription>
+                Your user ID is used to identify your account.
+              </FormDescription>
+            </div>
 
-          <div className="space-y-2">
-            <Label>Listings</Label>
-            <Input
-              value={listings && `${listings.total} / ${listings.limit}`}
-              readOnly
-            />
-            <FormDescription>
-              The number of listings you have saved.
-            </FormDescription>
+            <div className="space-y-2">
+              <Label>Listings</Label>
+              <Input
+                value={listings && `${listings.total} / ${listings.limit}`}
+                readOnly
+              />
+              <FormDescription>
+                The number of listings you have saved.
+              </FormDescription>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Posted</Label>
+              <Input value={user?.nPosted} readOnly />
+              <FormDescription>The number of listings posted.</FormDescription>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Purged</Label>
+              <Input value={user?.nPurged} readOnly />
+              <FormDescription>The number of listings purged.</FormDescription>
+            </div>
           </div>
 
           <FormField
