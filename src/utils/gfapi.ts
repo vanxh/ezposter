@@ -200,11 +200,14 @@ export const searchListings = async (
       }
     }
 
-    const res = await fetch(`/listing?${query.toString()}`, {
-      headers: {
-        Authorization: authHeader(gameflipApiKey, gameflipApiSecret),
-      },
-    });
+    const res = await fetch(
+      `${GAMEFLIP_API_BASE_URL}/listing?${query.toString()}`,
+      {
+        headers: {
+          Authorization: authHeader(gameflipApiKey, gameflipApiSecret),
+        },
+      }
+    );
     const data = (await res.json()) as z.infer<
       typeof SearchGameflipListingsSchema
     >;
