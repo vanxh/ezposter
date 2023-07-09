@@ -92,11 +92,12 @@ export default class GFApi {
       next_page: string | null;
       data: T[];
     }>(url, options);
+    console.log(data);
     const newData = [...prevData, ...data.data];
 
     if (data.next_page) {
       return this._getPaginated(
-        data.next_page.split("?")[1] || "",
+        data.next_page.split("/v1")[1] || "",
         options,
         newData
       );
