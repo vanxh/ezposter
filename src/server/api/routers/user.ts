@@ -177,21 +177,30 @@ export const userRouter = createTRPCRouter({
     .query(async ({ ctx }) => {
       const { user } = ctx;
 
-      if (!user.autoPost) return null;
+      let queue = await AutoPostQueue.getById(`${user.id}`);
+
+      if (!user.autoPost) {
+        await AutoPostQueue.delete(`${user.id}`);
+        return null;
+      }
 
       const nListings = await ctx.prisma.gameflipListing.count({
-        where: { userId: user.id },
+        where: { userId: user.id, autoPost: true },
       });
 
-      if (!nListings) return null;
+      if (!nListings) {
+        await AutoPostQueue.delete(`${user.id}`);
+        return null;
+      }
 
       const premium = isPremium(user);
       const gfLoggedIn =
         !!user.gameflipApiKey && !!user.gameflipApiSecret && !!user.gameflipId;
 
-      if (!premium || !gfLoggedIn) return null;
-
-      let queue = await AutoPostQueue.getById(`${user.id}`);
+      if (!premium || !gfLoggedIn) {
+        await AutoPostQueue.delete(`${user.id}`);
+        return null;
+      }
 
       if (!queue) {
         queue = await AutoPostQueue.enqueue(user.id, {
@@ -220,15 +229,21 @@ export const userRouter = createTRPCRouter({
     .query(async ({ ctx }) => {
       const { user } = ctx;
 
-      if (!user.autoPost) return null;
+      let queue = await AutoPurgeQueue.getById(`${user.id}`);
+
+      if (!user.autoPost) {
+        await AutoPurgeQueue.delete(`${user.id}`);
+        return null;
+      }
 
       const premium = isPremium(user);
       const gfLoggedIn =
         !!user.gameflipApiKey && !!user.gameflipApiSecret && !!user.gameflipId;
 
-      if (!premium || !gfLoggedIn) return null;
-
-      let queue = await AutoPurgeQueue.getById(`${user.id}`);
+      if (!premium || !gfLoggedIn) {
+        await AutoPurgeQueue.delete(`${user.id}`);
+        return null;
+      }
 
       if (!queue) {
         queue = await AutoPurgeQueue.enqueue(user.id, {
