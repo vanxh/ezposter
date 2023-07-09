@@ -86,7 +86,7 @@ export const listingRouter = createTRPCRouter({
           .min(75)
           .max(9999 * 100),
         shippingWithinDays: z.number().min(1).max(3),
-        expiresWithinDays: z.number().min(1).max(30),
+        expiresWithinDays: z.number().min(1).max(365),
         tags: z.array(z.string().min(1).max(100)).max(20, {
           message: "You can only have up to 20 tags",
         }),
@@ -151,7 +151,7 @@ export const listingRouter = createTRPCRouter({
           .min(75)
           .max(9999 * 100),
         shippingWithinDays: z.number().min(1).max(3),
-        expiresWithinDays: z.number().min(1).max(30),
+        expiresWithinDays: z.number().min(1).max(365),
         tags: z.array(z.string().min(1).max(100)).max(20, {
           message: "You can only have up to 20 tags",
         }),
