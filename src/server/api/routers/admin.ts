@@ -3,6 +3,8 @@ import { PremiumTier } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 
 import { adminProcedure, createTRPCRouter } from "@/server/api/trpc";
+import AutoPostQueue from "@/pages/api/autopost";
+import AutoPurgeQueue from "@/pages/api/autopurge";
 
 export const adminRouter = createTRPCRouter({
   getUsers: adminProcedure
@@ -85,4 +87,18 @@ export const adminRouter = createTRPCRouter({
 
       return premiumKey;
     }),
+
+  getQueues: adminProcedure.input(z.undefined()).query(async () => {
+    const queues = [];
+
+    for await (const x of AutoPostQueue.get()) {
+      queues.push(x);
+    }
+
+    for await (const x of AutoPurgeQueue.get()) {
+      queues.push(x);
+    }
+
+    return queues;
+  }),
 });
