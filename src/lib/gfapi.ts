@@ -92,7 +92,6 @@ export default class GFApi {
       next_page: string | null;
       data: T[];
     }>(url, options);
-    console.log(data);
     const newData = [...prevData, ...data.data];
 
     if (data.next_page) {
