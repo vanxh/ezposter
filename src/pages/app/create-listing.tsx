@@ -391,7 +391,8 @@ const Page: NextPage = () => {
                       <Input
                         type="number"
                         placeholder="Enter shipping days"
-                        {...field}
+                        value={field.value}
+                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
                       />
                     </FormControl>
                     <FormDescription>
@@ -412,7 +413,8 @@ const Page: NextPage = () => {
                       <Input
                         type="number"
                         placeholder="Enter expire days"
-                        {...field}
+                        value={field.value}
+                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
                       />
                     </FormControl>
                     <FormDescription>

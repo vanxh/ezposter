@@ -41,7 +41,7 @@ const formSchema = z.object({
   upc: z.nativeEnum(GAMEFLIP_UPCS),
   price: z.number().min(0.75).max(9999),
   shippingWithinDays: z.number().min(1).max(3),
-  expiresWithinDays: z.number().min(1).max(30),
+  expiresWithinDays: z.number().min(1).max(365),
   tags: z.array(z.string().min(1).max(100)).max(20, {
     message: "You can only have up to 20 tags",
   }),
@@ -420,7 +420,8 @@ const Page: NextPage = () => {
                       <Input
                         type="number"
                         placeholder="Enter shipping days"
-                        {...field}
+                        value={field.value}
+                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
                       />
                     </div>
                   </FormControl>
@@ -443,7 +444,8 @@ const Page: NextPage = () => {
                       <Input
                         type="number"
                         placeholder="Enter expire days"
-                        {...field}
+                        value={field.value}
+                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
                       />
                     </div>
                   </FormControl>
