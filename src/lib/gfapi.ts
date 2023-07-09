@@ -131,11 +131,11 @@ export default class GFApi {
       }
     }
 
-    const data = await this._getPaginated<
-      z.infer<typeof GameflipListingSchema>
-    >(`/listing?${query.toString()}`);
+    const data = await this._get<{
+      data: z.infer<typeof GameflipListingSchema>[];
+    }>(`/listing?${query.toString()}`);
 
-    return data;
+    return data.data;
   }
 
   public async editListing(id: string, patch: JsonPatch[]) {
