@@ -1,5 +1,7 @@
 await import("./src/env.mjs");
 
+import packageJson from "./package.json" assert { type: "json", integrity: "sha384-ABC123" };
+
 /** @type {import("next").NextConfig} */
 const config = {
   reactStrictMode: true,
@@ -19,6 +21,10 @@ const config = {
 
   experimental: {
     esmExternals: false,
+  },
+
+  publicRuntimeConfig: {
+    version: packageJson.version,
   },
 };
 
