@@ -17,18 +17,21 @@ export default Queue("api/autopost", async (userId: number) => {
   if (!user || !isPremium(user) || !user.autoPost || !isGameflipConnected(user))
     return;
 
-  const listings = await prisma.gameflipListing.findMany({
+  const nListings = await prisma.gameflipListing.count({
     where: {
       userId: user.id,
       autoPost: true,
     },
   });
+  if (!nListings) return;
 
-  if (!listings.length) return;
+  const listing = (
+    await prisma.$queryRawUnsafe<GameflipListing[]>(
+      `SELECT * FROM GameflipListing WHERE userId = ${user.id} AND autoPost = true ORDER BY RAND() LIMIT 1`
+    )
+  )[0];
+  if (!listing) return;
 
-  const listing = listings[
-    Math.floor(Math.random() * listings.length)
-  ] as GameflipListing;
   const listingQuery = createListingQuery(listing, {
     gameflipApiKey: user.gameflipApiKey as string,
     gameflipApiSecret: user.gameflipApiSecret as string,
