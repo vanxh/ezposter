@@ -99,6 +99,6 @@ export const adminRouter = createTRPCRouter({
       queues.push(x);
     }
 
-    return queues;
+    return queues.flat();
   }),
 });
