@@ -44,7 +44,7 @@ const formSchema = z.object({
   upc: z.nativeEnum(GAMEFLIP_UPCS),
   price: z.number().min(0.75).max(9999),
   shippingWithinDays: z.number().min(1).max(3),
-  expiresWithinDays: z.number().min(1).max(30),
+  expiresWithinDays: z.number().min(1).max(365),
   tags: z.array(z.string().min(1).max(100)).max(20, {
     message: "You can only have up to 20 tags",
   }),
@@ -388,13 +388,11 @@ const Page: NextPage = () => {
                   <FormItem>
                     <FormLabel>Shipping Days</FormLabel>
                     <FormControl>
-                      <div>
-                        <Input
-                          type="number"
-                          placeholder="Enter shipping days"
-                          {...field}
-                        />
-                      </div>
+                      <Input
+                        type="number"
+                        placeholder="Enter shipping days"
+                        {...field}
+                      />
                     </FormControl>
                     <FormDescription>
                       The shipping days of your listing.
@@ -411,13 +409,11 @@ const Page: NextPage = () => {
                   <FormItem>
                     <FormLabel>Expire In</FormLabel>
                     <FormControl>
-                      <div>
-                        <Input
-                          type="number"
-                          placeholder="Enter expire days"
-                          {...field}
-                        />
-                      </div>
+                      <Input
+                        type="number"
+                        placeholder="Enter expire days"
+                        {...field}
+                      />
                     </FormControl>
                     <FormDescription>
                       The expire days of your listing.
