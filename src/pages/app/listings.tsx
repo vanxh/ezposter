@@ -6,17 +6,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { type ColumnDef } from "@tanstack/react-table";
 import { type GameflipListing } from "@prisma/client";
 import { format } from "date-fns";
-import { Edit, MoreHorizontal, PlayCircle, Trash } from "lucide-react";
+import { Edit, PlayCircle, Power, PowerOff, Trash } from "lucide-react";
 
 import { api } from "@/utils/api";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { showToast } from "@/components/ui/use-toast";
 import { DataTable } from "@/components/ui/data-table";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
@@ -90,6 +83,18 @@ const Page: NextPage = () => {
     },
     onError: (e) => {
       showToast(`${e.message ?? e ?? "Unknown error while deleting listing"}`);
+    },
+  });
+
+  const { mutateAsync: postListing } = api.user.listing.post.useMutation({
+    onSuccess: (listingId) => {
+      void navigator.clipboard.writeText(
+        `https://gameflip.com/item/${listingId}`
+      );
+      showToast("Posted listing and copied link to clipboard!");
+    },
+    onError: (e) => {
+      showToast(`${e.message ?? e ?? "Unknown error while posting listing"}`);
     },
   });
 
@@ -196,49 +201,35 @@ const Page: NextPage = () => {
     {
       id: "actions",
       cell: ({ row }) => {
-        const listing = row.original;
+        const l = row.original;
 
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => {
-                  void (listing.autoPost
-                    ? disableListing({ id: listing.id })
-                    : enableListing({ id: listing.id }));
-                }}
-                className="inline-flex w-full cursor-pointer items-center gap-x-2"
-              >
-                <PlayCircle size={16} />
-                {listing.autoPost ? "Disable Auto Post" : "Enable Auto Post"}
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link
-                  href={`/app/listings/${listing.id}`}
-                  className="inline-flex w-full items-center gap-x-2"
-                >
-                  <Edit size={16} />
-                  Edit
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  void deleteListing({ id: listing.id });
-                }}
-                className="inline-flex w-full cursor-pointer items-center gap-x-2"
-              >
-                <Trash size={16} />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex flex-row items-center justify-between gap-x-4 md:justify-between">
+            <Link href={`/app/listings/${l.id}`}>
+              <Edit size={16} />
+            </Link>
+            <button onClick={() => void deleteListing({ id: l.id })}>
+              <Trash size={16} />
+            </button>
+            <button onClick={() => void postListing({ id: l.id })}>
+              <PlayCircle size={16} />
+            </button>
+            <button
+              onClick={() => {
+                if (l.autoPost) {
+                  void disableListing({ id: l.id });
+                } else {
+                  void enableListing({ id: l.id });
+                }
+              }}
+            >
+              {l.autoPost ? (
+                <Power className="h-4 w-4" />
+              ) : (
+                <PowerOff className="h-4 w-4" />
+              )}
+            </button>
+          </div>
         );
       },
     },
