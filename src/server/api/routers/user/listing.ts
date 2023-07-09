@@ -14,6 +14,7 @@ import {
   MAX_LISTINGS_PER_USER,
 } from "@/constants";
 import GFApi from "@/lib/gfapi";
+import { createListingQuery } from "@/utils/gfapi";
 
 export const listingRouter = createTRPCRouter({
   summary: protectedProcedure.query(async ({ ctx }) => {
@@ -216,5 +217,40 @@ export const listingRouter = createTRPCRouter({
       );
 
       return listing;
+    }),
+
+  post: gameflipProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const listing = await ctx.prisma.gameflipListing.findUnique({
+        where: { id: input.id },
+      });
+
+      if (!listing) {
+        throw new Error("Listing not found");
+      }
+
+      const listingQuery = createListingQuery(listing, {
+        gameflipApiKey: ctx.user.gameflipApiKey as string,
+        gameflipApiSecret: ctx.user.gameflipApiSecret as string,
+        gameflipId: ctx.user.gameflipId as string,
+      });
+
+      const gfapi = new GFApi({
+        gameflipApiKey: ctx.user.gameflipApiKey as string,
+        gameflipApiSecret: ctx.user.gameflipApiSecret as string,
+        gameflipId: ctx.user.gameflipId as string,
+      });
+
+      const listingId = await gfapi.postListing(
+        listingQuery,
+        listing.images as string[]
+      );
+
+      return listingId;
     }),
 });
