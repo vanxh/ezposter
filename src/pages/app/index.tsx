@@ -234,7 +234,7 @@ const Page: NextPage = () => {
           {listings.map((l) => (
             <div
               key={l.id}
-              className="flex flex-col gap-y-4 rounded-lg border border-border px-4 py-4"
+              className="flex h-64 flex-col gap-y-4 rounded-lg border border-border px-4 py-4 md:h-80"
             >
               <Image
                 src={(l.images as string[])?.[0] || ""}
@@ -252,7 +252,7 @@ const Page: NextPage = () => {
                 </span>
               </div>
 
-              <div className="flex flex-row items-center justify-between gap-x-4 md:justify-between">
+              <div className="mt-auto flex flex-row items-center justify-between gap-x-4 md:justify-between">
                 <Link href={`/app/listings/${l.id}`}>
                   <Edit size={16} />
                 </Link>
