@@ -11,6 +11,7 @@ const config = {
       "images.clerk.dev",
       "uploadthing.com",
       "production-gameflipusercontent.fingershock.com",
+      "res.cloudinary.com",
     ],
   },
 
