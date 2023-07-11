@@ -5,7 +5,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { format, formatDuration, intervalToDuration } from "date-fns";
 
 import { api } from "@/utils/api";
-import { isPremium } from "@/utils/db";
 import {
   Form,
   FormControl,
@@ -383,7 +382,7 @@ const Page: NextPage = () => {
             <Button
               type="submit"
               className="ml-auto w-full md:w-auto"
-              disabled={!user || !isPremium(user) || connectGameflipLoading}
+              disabled={!user || connectGameflipLoading}
               loading={isLoading}
             >
               {isLoading ? "Saving..." : "Save"}
