@@ -51,7 +51,7 @@ const formSchema = z.object({
       page: 1,
       pageSize: 10,
     }),
-  duration: z.number().min(1).max(365),
+  duration: z.number().min(1).max(3650),
   tier: z.nativeEnum(PremiumTier),
 });
 

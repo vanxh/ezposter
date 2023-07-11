@@ -63,7 +63,7 @@ export const adminRouter = createTRPCRouter({
     .input(
       z.object({
         tier: z.nativeEnum(PremiumTier),
-        duration: z.number().min(1).max(365).default(30), // days
+        duration: z.number().min(1).max(3650).default(30), // days
       })
     )
     .mutation(async ({ ctx, input: { tier, duration } }) => {
