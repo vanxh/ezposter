@@ -4,7 +4,7 @@ import { createUploadthing, type FileRouter } from "uploadthing/next-legacy";
 const f = createUploadthing();
 
 export const ourFileRouter = {
-  imageUploader: f({ image: { maxFileSize: "4MB" } })
+  imageUploader: f({ image: { maxFileSize: "1MB" } })
     // .middleware(() => {
     //   const user = auth();
 
@@ -14,7 +14,7 @@ export const ourFileRouter = {
 
     //   return { userId: user.userId };
     // })
-    .onUploadComplete(({ metadata, file }) => {
+    .onUploadComplete(({ file }) => {
       // console.log("Upload complete for userId:", metadata.userId);
       console.log("file url", file.url);
     }),
