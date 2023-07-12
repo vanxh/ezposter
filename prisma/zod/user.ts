@@ -20,6 +20,7 @@ export const UserModel = z.object({
   purgeOlderThan: z.number().int(),
   nPosted: z.number().int(),
   nPurged: z.number().int(),
+  customListingImage: z.string().nullish(),
 })
 
 export interface CompleteUser extends z.infer<typeof UserModel> {
