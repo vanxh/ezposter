@@ -15,6 +15,14 @@ const config = {
     ],
   },
 
+  redirects: async () => [
+    {
+      source: "/",
+      destination: `/app`,
+      permanent: false,
+    },
+  ],
+
   i18n: {
     locales: ["en"],
     defaultLocale: "en",
