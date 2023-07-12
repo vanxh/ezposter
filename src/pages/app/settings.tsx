@@ -21,6 +21,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { LogOut, Sparkle } from "lucide-react";
+import { isGameflipConnected } from "@/utils/db";
 
 const formSchema = z.object({
   autoPost: z.boolean(),
@@ -181,6 +182,9 @@ const Page: NextPage = () => {
                   <Switch
                     checked={field.value}
                     onCheckedChange={field.onChange}
+                    disabled={
+                      field.value ? false : !(user && isGameflipConnected(user))
+                    }
                   />
                 </FormControl>
                 <FormMessage />
