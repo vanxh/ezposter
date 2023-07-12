@@ -57,6 +57,9 @@ export default function Navbar() {
               <DropdownMenuItem>
                 <Link href="/app/create-listing">Create Listing</Link>
               </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link href="/app/custom-listing">Custom Listing</Link>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </SignedIn>
