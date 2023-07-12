@@ -15,6 +15,7 @@ import {
 } from "@/constants";
 import GFApi from "@/lib/gfapi";
 import { createListingQuery } from "@/utils/gfapi";
+import { GameflipListingModel } from "@/prisma/zod";
 
 export const listingRouter = createTRPCRouter({
   summary: protectedProcedure.query(async ({ ctx }) => {
@@ -233,6 +234,55 @@ export const listingRouter = createTRPCRouter({
       if (!listing) {
         throw new Error("Listing not found");
       }
+
+      const listingQuery = createListingQuery(listing, {
+        gameflipApiKey: ctx.user.gameflipApiKey as string,
+        gameflipApiSecret: ctx.user.gameflipApiSecret as string,
+        gameflipId: ctx.user.gameflipId as string,
+      });
+
+      const gfapi = new GFApi({
+        gameflipApiKey: ctx.user.gameflipApiKey as string,
+        gameflipApiSecret: ctx.user.gameflipApiSecret as string,
+        gameflipId: ctx.user.gameflipId as string,
+      });
+
+      const listingId = await gfapi.postListing(
+        listingQuery,
+        listing.images as string[]
+      );
+
+      return listingId;
+    }),
+
+  postCustomListing: gameflipProcedure
+    .input(
+      z.object({
+        name: z.string().min(1).max(100),
+        description: z.string().min(1).max(1000),
+        category: z.nativeEnum(GAMEFLIP_CATEGORIES),
+        platform: z.nativeEnum(GAMEFLIP_PLATFORMS),
+        upc: z.nativeEnum(GAMEFLIP_UPCS),
+        priceInCents: z
+          .number()
+          .min(75)
+          .max(9999 * 100),
+        shippingWithinDays: z.number().min(1).max(3),
+        expiresWithinDays: z.number().min(1).max(365),
+        tags: z.array(z.string().min(1).max(100)).max(20, {
+          message: "You can only have up to 20 tags",
+        }),
+        images: z.array(z.string()).max(5, {
+          message: "You can only have up to 5 images",
+        }),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const listing = GameflipListingModel.parse({
+        ...input,
+        kind: "item",
+        accept_currency: "USD",
+      });
 
       const listingQuery = createListingQuery(listing, {
         gameflipApiKey: ctx.user.gameflipApiKey as string,
