@@ -282,6 +282,11 @@ export const listingRouter = createTRPCRouter({
         ...input,
         kind: "item",
         accept_currency: "USD",
+        id: 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        autoPost: false,
+        userId: ctx.user.id,
       });
 
       const listingQuery = createListingQuery(listing, {

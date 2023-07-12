@@ -78,3 +78,6 @@ export const MIN_POST_INTERVAL_IN_SECONDS = {
 
 export const GAMEFLIP_API_BASE_URL =
   "https://production-gameflip.fingershock.com/api/v1";
+
+export const DEFAULT_CUSTOM_LISTING_IMAGE_URL =
+  "https://res.cloudinary.com/dib08bdo0/image/upload/v1671521918/custom_tkbpoa.jpg";
