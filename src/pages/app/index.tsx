@@ -66,6 +66,7 @@ const Page: NextPage = () => {
     fetchNextPage,
     hasNextPage,
     refetch: refetchListings,
+    isFetchingNextPage,
   } = api.user.listing.getAll.useInfiniteQuery(
     {
       pageSize: 25,
@@ -215,20 +216,7 @@ const Page: NextPage = () => {
         dataLength={listings.length}
         next={fetchNextPage}
         hasMore={hasNextPage ?? false}
-        loader={
-          <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-6 md:grid-cols-4 lg:grid-cols-6">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="flex flex-col gap-y-4">
-                <Skeleton className="aspect-square w-full rounded-lg" />
-
-                <div className="flex w-full flex-col gap-y-1">
-                  <Skeleton className="h-5 w-1/2" />
-                  <Skeleton className="h-4 w-1/4" />
-                </div>
-              </div>
-            ))}
-          </div>
-        }
+        loader={<></>}
       >
         <div className="grid grid-cols-2 gap-x-6 gap-y-6 md:grid-cols-4 lg:grid-cols-6">
           {listings.map((l) => (
@@ -280,8 +268,8 @@ const Page: NextPage = () => {
               </div>
             </div>
           ))}
-          {!listings.length &&
-            Array.from({ length: 25 }).map((_, i) => (
+          {(!listings.length || isFetchingNextPage) &&
+            Array.from({ length: !listings.length ? 25 : 6 }).map((_, i) => (
               <div key={i} className="flex flex-col gap-y-4">
                 <Skeleton className="aspect-square w-full rounded-lg" />
 
