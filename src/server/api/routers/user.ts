@@ -28,6 +28,7 @@ export const userRouter = createTRPCRouter({
         autoPost: z.boolean().optional(),
         postTime: z.number().min(20).optional(), // in seconds
         purgeOlderThan: z.number().min(60).optional(), // in seconds
+        customListingImage: z.string().url().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -52,6 +53,7 @@ export const userRouter = createTRPCRouter({
           autoPost: input.autoPost,
           postTime: input.postTime,
           purgeOlderThan: input.purgeOlderThan,
+          customListingImage: input.customListingImage,
         },
       });
 
