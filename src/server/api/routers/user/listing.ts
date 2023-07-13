@@ -129,11 +129,13 @@ export const listingRouter = createTRPCRouter({
       const listing = await ctx.prisma.gameflipListing.delete({
         where: { id: input.id },
       });
-      await utapi.deleteFiles(
-        (listing.images as string[]).map(
-          (url) => url.split("/").pop() as string
+      await utapi
+        .deleteFiles(
+          (listing.images as string[]).map(
+            (url) => url.split("/").pop() as string
+          )
         )
-      );
+        .catch(() => null);
 
       return true;
     }),
