@@ -13,8 +13,6 @@ import Footer from "@/components/Footer";
 import "@/styles/globals.css";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
-  api.useQueries((t) => [t.user.syncAutoPost(), t.user.syncAutoPurge()]);
-
   return (
     <ThemeProvider attribute="class">
       <CustomClerkProvider {...pageProps}>

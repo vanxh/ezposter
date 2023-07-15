@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { type User } from "@prisma/client";
 
 import {
   createTRPCRouter,
@@ -12,10 +13,58 @@ import {
   recommendedPostTime,
   recommendedPurgeTime,
 } from "@/utils/gfapi";
-import { isPremium } from "@/utils/db";
+import { isGameflipConnected, isPremium } from "@/utils/db";
 import { MIN_POST_INTERVAL_IN_SECONDS } from "@/constants";
 import AutoPostQueue from "@/pages/api/autopost";
 import AutoPurgeQueue from "@/pages/api/autopurge";
+
+const syncAutoPostQueue = async (user: User) => {
+  if (!user.autoPost || !isPremium(user) || !isGameflipConnected(user)) {
+    await AutoPostQueue.delete(`${user.id}`);
+  }
+
+  let autoPostJob = await AutoPostQueue.getById(`${user.id}`);
+
+  if (!autoPostJob) {
+    autoPostJob = await AutoPostQueue.enqueue(user.id, {
+      id: `${user.id}`,
+      repeat: {
+        every: user.postTime * 1000,
+      },
+    });
+  }
+
+  if (user.postTime * 1000 !== autoPostJob?.repeat?.every) {
+    await AutoPostQueue.delete(`${user.id}`);
+    await AutoPostQueue.enqueue(user.id, {
+      id: `${user.id}`,
+      repeat: {
+        every: user.postTime * 1000,
+      },
+    });
+  }
+
+  return autoPostJob;
+};
+
+const syncAutoPurgeQueue = async (user: User) => {
+  if (!user.autoPost || !isPremium(user) || !isGameflipConnected(user)) {
+    await AutoPurgeQueue.delete(`${user.id}`);
+  }
+
+  let autoPurgeJob = await AutoPurgeQueue.getById(`${user.id}`);
+
+  if (!autoPurgeJob) {
+    autoPurgeJob = await AutoPurgeQueue.enqueue(user.id, {
+      id: `${user.id}`,
+      repeat: {
+        every: 3 * 60 * 1000,
+      },
+    });
+  }
+
+  return autoPurgeJob;
+};
 
 export const userRouter = createTRPCRouter({
   listing: listingRouter,
@@ -57,6 +106,9 @@ export const userRouter = createTRPCRouter({
         },
       });
 
+      await syncAutoPostQueue(update);
+      await syncAutoPurgeQueue(update);
+
       return update;
     }),
 
@@ -95,6 +147,9 @@ export const userRouter = createTRPCRouter({
           gameflipId: gameflipProfile.owner,
         },
       });
+
+      await syncAutoPostQueue(update);
+      await syncAutoPurgeQueue(update);
 
       return {
         gameflipProfile,
@@ -152,6 +207,9 @@ export const userRouter = createTRPCRouter({
         },
       });
 
+      await syncAutoPostQueue(update);
+      await syncAutoPurgeQueue(update);
+
       return update;
     }),
 
@@ -172,90 +230,5 @@ export const userRouter = createTRPCRouter({
         recommendedPostTime: recommendedPostTime(gameflipProfile.sell),
         recommendedPurgeTime: recommendedPurgeTime(gameflipProfile.sell),
       };
-    }),
-
-  syncAutoPost: protectedProcedure
-    .input(z.undefined())
-    .query(async ({ ctx }) => {
-      const { user } = ctx;
-
-      let queue = await AutoPostQueue.getById(`${user.id}`);
-
-      if (!user.autoPost) {
-        await AutoPostQueue.delete(`${user.id}`);
-        return null;
-      }
-
-      const nListings = await ctx.prisma.gameflipListing.count({
-        where: { userId: user.id, autoPost: true },
-      });
-
-      if (!nListings) {
-        await AutoPostQueue.delete(`${user.id}`);
-        return null;
-      }
-
-      const premium = isPremium(user);
-      const gfLoggedIn =
-        !!user.gameflipApiKey && !!user.gameflipApiSecret && !!user.gameflipId;
-
-      if (!premium || !gfLoggedIn) {
-        await AutoPostQueue.delete(`${user.id}`);
-        return null;
-      }
-
-      if (!queue) {
-        queue = await AutoPostQueue.enqueue(user.id, {
-          id: `${user.id}`,
-          repeat: {
-            every: user.postTime * 1000,
-          },
-        });
-      }
-
-      if (user.postTime * 1000 !== queue?.repeat?.every) {
-        await AutoPostQueue.delete(`${user.id}`);
-        await AutoPostQueue.enqueue(user.id, {
-          id: `${user.id}`,
-          repeat: {
-            every: user.postTime * 1000,
-          },
-        });
-      }
-
-      return queue;
-    }),
-
-  syncAutoPurge: protectedProcedure
-    .input(z.undefined())
-    .query(async ({ ctx }) => {
-      const { user } = ctx;
-
-      let queue = await AutoPurgeQueue.getById(`${user.id}`);
-
-      if (!user.autoPost) {
-        await AutoPurgeQueue.delete(`${user.id}`);
-        return null;
-      }
-
-      const premium = isPremium(user);
-      const gfLoggedIn =
-        !!user.gameflipApiKey && !!user.gameflipApiSecret && !!user.gameflipId;
-
-      if (!premium || !gfLoggedIn) {
-        await AutoPurgeQueue.delete(`${user.id}`);
-        return null;
-      }
-
-      if (!queue) {
-        queue = await AutoPurgeQueue.enqueue(user.id, {
-          id: `${user.id}`,
-          repeat: {
-            every: 3 * 60 * 1000,
-          },
-        });
-      }
-
-      return queue;
     }),
 });
