@@ -33,26 +33,17 @@ export default Queue("api/autopurge", async (userId: number) => {
       status: "onsale",
       sort: "created:asc",
       visibility: "public",
-      limit: "50",
+      limit: "20",
       created: `,${new Date(
         Date.now() - user.purgeOlderThan * 60 * 1000
       ).toISOString()}`,
     });
 
+    let nPurged = 0;
     for await (const listing of listings) {
       try {
         await gfapi.deleteListing(listing.id);
-
-        await prisma.user.update({
-          where: {
-            id: user.id,
-          },
-          data: {
-            nPurged: {
-              increment: 1,
-            },
-          },
-        });
+        nPurged++;
       } catch (e) {
         console.error(
           `Auto purge job for ${user.id} failed to delete listing ${
@@ -60,8 +51,19 @@ export default Queue("api/autopurge", async (userId: number) => {
           }: ${e as string}`
         );
       }
-      await wait(1000);
+      await wait(300);
     }
+
+    await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        nPurged: {
+          increment: nPurged,
+        },
+      },
+    });
 
     console.log(
       `Auto purge job for ${user.id}: Deleted ${listings.length} listings`
