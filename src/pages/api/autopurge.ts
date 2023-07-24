@@ -15,6 +15,15 @@ export default Queue("api/autopurge", async (userId: number) => {
       where: {
         id: userId,
       },
+      select: {
+        gameflipApiKey: true,
+        gameflipApiSecret: true,
+        gameflipId: true,
+        autoPost: true,
+        premiumValidUntil: true,
+        purgeOlderThan: true,
+        id: true,
+      },
     });
     if (
       !user ||
@@ -33,7 +42,7 @@ export default Queue("api/autopurge", async (userId: number) => {
       status: "onsale",
       sort: "created:asc",
       visibility: "public",
-      limit: "20",
+      limit: "5",
       created: `,${new Date(
         Date.now() - user.purgeOlderThan * 60 * 1000
       ).toISOString()}`,
@@ -51,7 +60,7 @@ export default Queue("api/autopurge", async (userId: number) => {
           }: ${e as string}`
         );
       }
-      await wait(300);
+      await wait(250);
     }
 
     await prisma.user.update({
