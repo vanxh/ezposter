@@ -52,8 +52,6 @@ const syncAutoPurgeQueue = async (user: User) => {
     await AutoPurgeQueue.delete(`${user.id}`);
   }
 
-  let autoPurgeJob = await AutoPurgeQueue.getById(`${user.id}`);
-
   let repeat = 8 * 60 * 1000;
   if (user.postTime <= 120) {
     repeat = 6 * 60 * 1000;
@@ -65,14 +63,13 @@ const syncAutoPurgeQueue = async (user: User) => {
     repeat = 2 * 60 * 1000;
   }
 
-  if (!autoPurgeJob) {
-    autoPurgeJob = await AutoPurgeQueue.enqueue(user.id, {
-      id: `${user.id}`,
-      repeat: {
-        every: repeat,
-      },
-    });
-  }
+  const autoPurgeJob = await AutoPurgeQueue.enqueue(user.id, {
+    id: `${user.id}`,
+    override: true,
+    repeat: {
+      every: repeat,
+    },
+  });
 
   return autoPurgeJob;
 };
