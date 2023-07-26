@@ -218,11 +218,11 @@ const Page: NextPage = () => {
         hasMore={hasNextPage ?? false}
         loader={<></>}
       >
-        <div className="grid grid-cols-2 gap-x-6 gap-y-6 md:grid-cols-4 lg:grid-cols-6">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-6 md:grid-cols-4 lg:grid-cols-6 overflow-hidden">
           {listings.map((l) => (
             <div
               key={l.id}
-              className="flex h-64 flex-col gap-y-4 rounded-lg border border-border px-4 py-4 md:h-80"
+              className="flex h-64 sm:h-72 flex-col gap-y-4 rounded-lg border border-border px-4 py-4 md:h-80"
             >
               <Image
                 src={(l.images as string[])?.[0] || ""}
@@ -234,7 +234,7 @@ const Page: NextPage = () => {
               />
 
               <div className="flex flex-col gap-y-1">
-                <h3 className="text-lg font-semibold">{l.name}</h3>
+                <h3 className="text-lg font-semibold truncate">{l.name}</h3>
                 <span className="inline-flex items-center gap-x-1 text-sm text-foreground/70">
                   <DollarSign className="h-4 w-4" /> {l.priceInCents / 100}
                 </span>
