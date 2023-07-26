@@ -9,8 +9,8 @@ import { format } from "date-fns";
 import { Edit, PlayCircle, Power, PowerOff, Trash } from "lucide-react";
 
 import { api } from "@/utils/api";
+import useListings from "@/hooks/useListings";
 import { Button } from "@/components/ui/button";
-import { showToast } from "@/components/ui/use-toast";
 import { DataTable } from "@/components/ui/data-table";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import { Separator } from "@/components/ui/separator";
@@ -28,105 +28,19 @@ const Page: NextPage = () => {
     defaultValues: {},
   });
 
-  const utils = api.useContext();
-
-  const updateListingsCache = (
-    id: number,
-    update: Partial<GameflipListing>
-  ) => {
-    utils.user.listing.getAll.setData(
-      {
-        pageSize: form.getValues("listingsPagination.pageSize"),
-        page: form.getValues("listingsPagination.page"),
-      },
-      (data) => {
-        if (!data) {
-          return {
-            listings: [],
-            pagination: {
-              page: 1,
-              pageSize: 10,
-              totalPages: 1,
-              totalItems: 0,
-            },
-          };
-        }
-
-        return {
-          ...data,
-          listings: data.listings.map((listing) => {
-            if (listing.id === id) {
-              return {
-                ...listing,
-                ...update,
-              };
-            }
-
-            return listing;
-          }),
-        };
-      }
-    );
-  };
-
-  const { data: listingSummary } = api.user.listing.summary.useQuery();
   const { data: listingsData, refetch: refetchListings } =
     api.user.listing.getAll.useQuery({
       page: form.getValues("listingsPagination.page"),
       pageSize: form.getValues("listingsPagination.pageSize"),
     });
 
-  const { mutateAsync: deleteListing } = api.user.listing.delete.useMutation({
-    onSuccess: () => {
-      void refetchListings();
-      showToast("Deleted listing!");
-    },
-    onError: (e) => {
-      showToast(`${e.message ?? e ?? "Unknown error while deleting listing"}`);
-    },
-  });
-
-  const { mutateAsync: postListing } = api.user.listing.post.useMutation({
-    onSuccess: (listingId) => {
-      void navigator.clipboard.writeText(
-        `https://gameflip.com/item/${listingId}`
-      );
-      showToast("Posted listing and copied link to clipboard!");
-    },
-    onError: (e) => {
-      showToast(`${e.message ?? e ?? "Unknown error while posting listing"}`);
-    },
-  });
-
-  const { mutateAsync: enableListing } = api.user.listing.enable.useMutation({
-    onMutate: ({ id }) => {
-      updateListingsCache(id, {
-        autoPost: true,
-      });
-    },
-    onSuccess: () => {
-      void refetchListings();
-      showToast("Enabled listing!");
-    },
-    onError: (e) => {
-      showToast(`${e.message ?? e ?? "Unknown error while enabling listing"}`);
-    },
-  });
-
-  const { mutateAsync: disableListing } = api.user.listing.disable.useMutation({
-    onMutate: ({ id }) => {
-      updateListingsCache(id, {
-        autoPost: false,
-      });
-    },
-    onSuccess: () => {
-      void refetchListings();
-      showToast("Disabled listing!");
-    },
-    onError: (e) => {
-      showToast(`${e.message ?? e ?? "Unknown error while disabling listing"}`);
-    },
-  });
+  const {
+    listingSummary,
+    deleteListing,
+    postListing,
+    enableListing,
+    disableListing,
+  } = useListings();
 
   const columns: ColumnDef<GameflipListing>[] = [
     {
