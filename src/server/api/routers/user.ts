@@ -3,8 +3,8 @@ import { type User } from "@prisma/client";
 
 import {
   createTRPCRouter,
-  protectedProcedure,
   gameflipProcedure,
+  protectedProcedure,
 } from "@/server/api/trpc";
 import { listingRouter } from "@/server/api/routers/user/listing";
 import GFApi from "@/lib/gfapi";
@@ -35,9 +35,9 @@ const syncAutoPostQueue = async (user: User) => {
   }
 
   if (user.postTime * 1000 !== autoPostJob?.repeat?.every) {
-    await AutoPostQueue.delete(`${user.id}`);
     await AutoPostQueue.enqueue(user.id, {
       id: `${user.id}`,
+      override: true,
       repeat: {
         every: user.postTime * 1000,
       },
