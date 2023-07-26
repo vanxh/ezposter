@@ -123,7 +123,7 @@ const Page: NextPage = () => {
               <Edit size={16} />
             </Link>
             <button onClick={() => void deleteListing({ id: l.id })}>
-              <Trash size={16} />
+              <Trash size={16} className="text-red-500" />
             </button>
             <button onClick={() => void postListing({ id: l.id })}>
               <PlayCircle size={16} />
@@ -138,9 +138,9 @@ const Page: NextPage = () => {
               }}
             >
               {l.autoPost ? (
-                <Power className="h-4 w-4" />
+                <Power className="h-4 w-4 text-green-500" />
               ) : (
-                <PowerOff className="h-4 w-4" />
+                <PowerOff className="h-4 w-4 text-red-500" />
               )}
             </button>
           </div>
