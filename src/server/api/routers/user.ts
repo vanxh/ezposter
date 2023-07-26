@@ -54,15 +54,15 @@ const syncAutoPurgeQueue = async (user: User) => {
 
   let autoPurgeJob = await AutoPurgeQueue.getById(`${user.id}`);
 
-  let repeat = 5 * 60 * 1000;
+  let repeat = 8 * 60 * 1000;
   if (user.postTime <= 120) {
-    repeat = 4 * 60 * 1000;
+    repeat = 6 * 60 * 1000;
   }
   if (user.postTime <= 60) {
-    repeat = 2 * 60 * 1000;
+    repeat = 4 * 60 * 1000;
   }
   if (user.postTime <= 30) {
-    repeat = 1 * 60 * 1000;
+    repeat = 2 * 60 * 1000;
   }
 
   if (!autoPurgeJob) {
