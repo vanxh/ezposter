@@ -85,3 +85,4 @@ export default Queue("api/autopurge", async (userId: number) => {
 export const config = {
   runtime: "edge",
 };
+export const runtime = "edge";
