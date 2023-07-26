@@ -81,3 +81,7 @@ export default Queue("api/autopurge", async (userId: number) => {
     console.error(`Auto purge job for ${userId} failed: ${e as string}`);
   }
 });
+
+export const config = {
+  runtime: "edge",
+};
