@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import crypto from "crypto";
+import { PremiumTier } from "@prisma/client";
 
 import { env } from "@/env.mjs";
 import { prisma } from "@/server/db";
@@ -7,7 +8,6 @@ import {
   SELLIX_BASIC_PRODUCT_ID,
   SELLIX_PREMIUM_PRODUCT_ID,
 } from "@/constants";
-import { PremiumTier } from "@prisma/client";
 
 export default async function handler(
   req: NextApiRequest,
