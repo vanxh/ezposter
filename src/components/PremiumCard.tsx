@@ -1,5 +1,6 @@
 import { Check, DollarSign, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { api } from "@/utils/api";
 
 type PremiumCardProps = {
   plan: string;
@@ -16,6 +17,8 @@ const PremiumCard = ({
   features,
   productId,
 }: PremiumCardProps) => {
+  const { data: user } = api.user.me.useQuery();
+
   return (
     <div className="flex w-full flex-col gap-y-4 rounded-lg border border-border bg-background px-4 py-6 text-left md:w-[350px]">
       <h3 className="text-xl font-medium">{plan}</h3>
@@ -45,7 +48,11 @@ const PremiumCard = ({
       </div>
 
       {productId && (
-        <Button data-sellix-product={productId} type="submit">
+        <Button
+          data-sellix-product={productId}
+          data-sellix-custom-userid={user?.id}
+          type="submit"
+        >
           Purchase
         </Button>
       )}

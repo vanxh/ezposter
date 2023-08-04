@@ -1,5 +1,8 @@
 import { PremiumTier } from "@prisma/client";
 
+export const SELLIX_BASIC_PRODUCT_ID = "64cd224d87878";
+export const SELLIX_PREMIUM_PRODUCT_ID = "64cd22f879b37";
+
 export const GAMEFLIP_CATEGORIES = {
   "Video Games": "CONSOLE_VIDEO_GAMES",
   "In-Game Items": "DIGITAL_INGAME",

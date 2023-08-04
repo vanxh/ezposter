@@ -4,6 +4,10 @@ import Script from "next/script";
 import { Button } from "@/components/ui/button";
 import Blob from "@/components/Blob";
 import PremiumCard from "@/components/PremiumCard";
+import {
+  SELLIX_BASIC_PRODUCT_ID,
+  SELLIX_PREMIUM_PRODUCT_ID,
+} from "@/constants";
 
 export default function Home() {
   return (
@@ -69,7 +73,7 @@ export default function Home() {
               "Minimum Post Time": 60,
               "Priority Support": false,
             }}
-            productId="64cd224d87878"
+            productId={SELLIX_BASIC_PRODUCT_ID}
           />
           <PremiumCard
             plan="Pro"
@@ -81,11 +85,11 @@ export default function Home() {
               "Minimum Post Time": 20,
               "Priority Support": true,
             }}
-            productId="64cd22f879b37"
+            productId={SELLIX_PREMIUM_PRODUCT_ID}
           />
         </div>
 
-        <Script src="https://cdn.sellix.io/static/js/embed.js" async />
+        <Script src={"https://cdn.sellix.io/static/js/embed.js"} async />
       </section>
     </div>
   );
