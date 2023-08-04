@@ -12,6 +12,13 @@ export default {
       },
     },
     extend: {
+      backgroundImage: {
+        "grid-pattern":
+          "linear-gradient(90deg, hsl(var(--border)) 1px, transparent 0), linear-gradient(180deg, hsl(var(--border)) 1px, transparent 0)",
+      },
+      backgroundSize: {
+        "grid-pattern": "6rem 4rem",
+      },
       colors: {
         brand: {
           "50": "hsl(204, 100%, 97%)",
@@ -74,10 +81,25 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        blob: {
+          "0%": {
+            transform: "translate(0px, 0px) scale(1)",
+          },
+          "33%": {
+            transform: "translate(30px, -50px) scale(1.1)",
+          },
+          "66%": {
+            transform: "translate(-20px, 20px) scale(0.9)",
+          },
+          "100%": {
+            transform: "translate(0px, 0px) scale(1)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        blob: "blob 7s infinite",
       },
       fontFamily: {
         poppins: ["var(--font-poppins)", "sans-serif"],
