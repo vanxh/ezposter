@@ -99,17 +99,17 @@ const Page: NextPage = () => {
       )}
 
       <InfiniteScroll
-        dataLength={listings.length}
+        dataLength={listings?.length ?? 0}
         next={fetchNextPage}
         hasMore={hasNextPage ?? false}
         loader={<></>}
       >
         <div className="grid grid-cols-2 gap-x-6 gap-y-6 overflow-hidden md:grid-cols-4 lg:grid-cols-6">
-          {listings.map((l) => (
+          {listings?.map((l) => (
             <ListingCard key={l.id} {...l} />
           ))}
-          {(!listings.length || isFetchingNextPage) &&
-            Array.from({ length: !listings.length ? 25 : 6 }).map((_, i) => (
+          {(!listings || isFetchingNextPage) &&
+            Array.from({ length: !listings?.length ? 25 : 6 }).map((_, i) => (
               <div key={i} className="flex flex-col gap-y-4">
                 <Skeleton className="aspect-square w-full rounded-lg" />
 
@@ -121,6 +121,14 @@ const Page: NextPage = () => {
             ))}
         </div>
       </InfiniteScroll>
+      {listings && !listings.length && (
+        <div className="flex flex-col items-center justify-center gap-y-4">
+          <h3 className="text-lg font-semibold">No listings found</h3>
+          <Link href="/app/create-listing">
+            <Button>Create Listing</Button>
+          </Link>
+        </div>
+      )}
     </div>
   );
 };

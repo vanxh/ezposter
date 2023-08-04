@@ -114,7 +114,7 @@ export default function useListings() {
     },
   });
 
-  const listings = listingsData?.pages.flatMap((page) => page.listings) ?? [];
+  const listings = listingsData?.pages.flatMap((page) => page.listings);
 
   return {
     listingSummary,
