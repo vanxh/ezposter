@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Menu } from "lucide-react";
+import { LogIn, Menu } from "lucide-react";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 
 import Logo from "@/public/ezposter.png";
@@ -74,7 +74,11 @@ export default function Navbar() {
             <UserButton afterSignOutUrl="/" />
           </SignedIn>
           <SignedOut>
-            <SignInButton />
+            <SignInButton>
+              <Button variant="outline" size="icon">
+                <LogIn className="h-[1.2rem] w-[1.2rem]" />
+              </Button>
+            </SignInButton>
           </SignedOut>
         </div>
       </div>
