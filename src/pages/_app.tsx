@@ -44,12 +44,19 @@ const MyApp: AppType = ({ Component, pageProps }) => {
 
         <div
           className={cn(
-            "flex min-h-[100vh] w-screen flex-col items-center justify-center font-poppins",
-            poppins.variable
+            poppins.variable,
+            "font-poppins",
+            "relative flex min-h-screen flex-col"
           )}
         >
           <Navbar />
-          <Component {...pageProps} />
+          <div className="flex-1">
+            <div className="border-b">
+              <div className="container flex-1 items-start">
+                <Component {...pageProps} />
+              </div>
+            </div>
+          </div>
           <Footer />
         </div>
 

@@ -122,7 +122,7 @@ const Page: NextPage = () => {
   };
 
   return (
-    <div className="container mx-auto flex flex-col justify-start gap-y-6">
+    <div className="flex min-h-[90vh] flex-col justify-start gap-y-6 py-[2vh]">
       <div className="flex flex-col gap-y-2">
         <h3 className="text-lg font-semibold">Post a Custom Listing</h3>
         <Separator />
