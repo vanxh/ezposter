@@ -60,7 +60,7 @@ export default async function handler(
 
   const signature = crypto
     .createHmac("sha512", env.SELLIX_WEBHOOK_SECRET)
-    .update(payload as unknown as Buffer)
+    .update(Buffer.from(JSON.stringify(payload)))
     .digest("hex");
 
   if (
