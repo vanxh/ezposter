@@ -15,6 +15,15 @@ export default function CustomClerkProvider({
       {...pageProps}
       appearance={{
         baseTheme: resolvedTheme === "dark" ? dark : undefined,
+
+        elements: {
+          userButtonPopoverCard:
+            "bg-popover border-border border text-popover-foreground shadow-md w-max min-w-[8rem] py-6 px-2",
+          userButtonPopoverActionButton:
+            "text-popover-foreground text-sm focus:text-accent-foreground focus:bg-accent hover:bg-transparent",
+          userButtonPopoverActionButtonText: "min-w-max",
+          card: "bg-background rounded-lg shadow-lg",
+        },
       }}
     >
       {children}
