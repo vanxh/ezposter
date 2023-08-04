@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Script from "next/script";
 
 import { Button } from "@/components/ui/button";
 import Blob from "@/components/Blob";
@@ -37,16 +38,16 @@ export default function Home() {
         </section>
       </article>
 
-      <section className="flex flex-col items-center justify-center gap-y-4 text-center">
-        <h2 className="text-center text-3xl font-semibold md:text-5xl">
-          Pricing
-        </h2>
-        <p className="text-base md:w-[50%]">
-          We have a variety of plans to suit your needs. You can choose any
-          based on your needs.
-        </p>
+      <section className="flex flex-col items-center justify-center gap-y-12 text-center">
+        <div className="flex w-full flex-col items-center gap-y-4 text-center">
+          <h2 className="text-3xl font-semibold md:text-5xl">Pricing</h2>
+          <p className="text-base md:w-[50%]">
+            We have a variety of plans to suit your needs. You can choose any
+            based on your needs.
+          </p>
+        </div>
 
-        <div className="flex w-full flex-col items-center justify-center gap-y-4 md:flex-row md:gap-x-4">
+        <div className="flex w-full flex-col justify-center gap-y-4 md:flex-row md:gap-x-4">
           <PremiumCard
             plan="Free"
             pricePerMonth={0}
@@ -68,6 +69,7 @@ export default function Home() {
               "Minimum Post Time": 60,
               "Priority Support": false,
             }}
+            productId="64cd224d87878"
           />
           <PremiumCard
             plan="Pro"
@@ -79,8 +81,11 @@ export default function Home() {
               "Minimum Post Time": 20,
               "Priority Support": true,
             }}
+            productId="64cd22f879b37"
           />
         </div>
+
+        <Script src="https://cdn.sellix.io/static/js/embed.js" async />
       </section>
     </div>
   );
