@@ -77,7 +77,7 @@ export default function Home() {
           />
           <PremiumCard
             plan="Pro"
-            pricePerMonth={7.99}
+            pricePerMonth={9.99}
             features={{
               "Auto Post": true,
               "Auto Purge": true,
