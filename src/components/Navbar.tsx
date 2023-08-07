@@ -31,7 +31,7 @@ export default function Navbar() {
               className="rounded-lg"
             />
             <h1 className="hidden font-bold sm:inline-block">
-              EZ<span className="text-brand-400">Poster</span>
+              EZ<span className="text-primary">Poster</span>
             </h1>
           </Link>
         </div>

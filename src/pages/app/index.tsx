@@ -104,7 +104,7 @@ const Page: NextPage = () => {
         hasMore={hasNextPage ?? false}
         loader={<></>}
       >
-        <div className="grid grid-cols-2 gap-x-6 gap-y-6 overflow-hidden md:grid-cols-4 lg:grid-cols-6">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-6 overflow-hidden md:grid-cols-4 xl:grid-cols-6">
           {listings?.map((l) => (
             <ListingCard key={l.id} {...l} />
           ))}
