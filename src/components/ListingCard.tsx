@@ -43,7 +43,7 @@ export default function ListingCard({
         </span>
       </div>
 
-      <div className="mt-auto grid grid-cols-3 items-center justify-between justify-between gap-x-4 gap-y-4 md:flex md:flex-row md:justify-between">
+      <div className="mt-auto grid grid-cols-3 items-center justify-between gap-x-4 gap-y-4 md:flex md:flex-row md:justify-between">
         <Link
           href={`/app/listings/${id}`}
           className="transition-transform ease-in-out active:scale-95"

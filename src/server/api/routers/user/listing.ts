@@ -3,9 +3,9 @@ import { utapi } from "uploadthing/server";
 
 import {
   createTRPCRouter,
-  protectedProcedure,
-  premiumProcedure,
   gameflipProcedure,
+  premiumProcedure,
+  protectedProcedure,
 } from "@/server/api/trpc";
 import {
   GAMEFLIP_CATEGORIES,
@@ -43,6 +43,9 @@ export const listingRouter = createTRPCRouter({
         where: { userId: ctx.user.id },
         skip: (page - 1) * input.pageSize,
         take: input.pageSize,
+        orderBy: {
+          name: "asc",
+        },
       });
 
       const nListings = await ctx.prisma.gameflipListing.count({
