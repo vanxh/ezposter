@@ -1,7 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
 import { type GameflipListing } from "@prisma/client";
-import { DollarSign, Edit, Play, Power, PowerOff, Trash } from "lucide-react";
+import {
+  Copy,
+  DollarSign,
+  Edit,
+  PlayCircle,
+  Power,
+  PowerOff,
+  Trash,
+} from "lucide-react";
 
 import useListings from "@/hooks/useListings";
 
@@ -18,7 +26,7 @@ export default function ListingCard({
     useListings();
 
   return (
-    <div className="flex h-64 flex-col gap-y-4 rounded-lg border border-border px-4 py-4 sm:h-72 md:h-80">
+    <div className="flex flex-col gap-y-4 rounded-lg border border-border px-4 py-4 sm:h-72 md:h-80">
       <Image
         src={(images as string[])?.[0] || ""}
         alt="listing image"
@@ -35,15 +43,30 @@ export default function ListingCard({
         </span>
       </div>
 
-      <div className="mt-auto flex flex-row items-center justify-between gap-x-4 md:justify-between">
-        <Link href={`/app/listings/${id}`}>
+      <div className="mt-auto grid grid-cols-3 items-center justify-between justify-between gap-x-4 gap-y-4 md:flex md:flex-row md:justify-between">
+        <Link
+          href={`/app/listings/${id}`}
+          className="transition-transform ease-in-out active:scale-95"
+        >
           <Edit size={16} />
         </Link>
-        <button onClick={() => void deleteListing({ id })}>
+        <button
+          onClick={() => void deleteListing({ id })}
+          className="transition-transform ease-in-out active:scale-95"
+        >
           <Trash size={16} className="text-red-500" />
         </button>
-        <button onClick={() => void postListing({ id })}>
-          <Play size={16} />
+        <Link
+          href={`/app/create-listing?copy=${id}`}
+          className="transition-transform ease-in-out active:scale-95"
+        >
+          <Copy size={16} />
+        </Link>
+        <button
+          onClick={() => void postListing({ id })}
+          className="transition-transform ease-in-out active:scale-95"
+        >
+          <PlayCircle size={16} className="text-primary" />
         </button>
         <button
           onClick={() => {
@@ -53,6 +76,7 @@ export default function ListingCard({
               void enableListing({ id });
             }
           }}
+          className="transition-transform ease-in-out active:scale-95"
         >
           {autoPost ? (
             <Power className="h-4 w-4 text-green-500" />

@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { type ColumnDef } from "@tanstack/react-table";
 import { type GameflipListing } from "@prisma/client";
 import { format } from "date-fns";
-import { Edit, PlayCircle, Power, PowerOff, Trash } from "lucide-react";
+import { Copy, Edit, PlayCircle, Power, PowerOff, Trash } from "lucide-react";
 
 import { api } from "@/utils/api";
 import useListings from "@/hooks/useListings";
@@ -122,11 +122,17 @@ const Page: NextPage = () => {
             <Link href={`/app/listings/${l.id}`}>
               <Edit size={16} />
             </Link>
+            <Link
+              href={`/app/create-listing?copy=${l.id}`}
+              className="transition-transform ease-in-out active:scale-95"
+            >
+              <Copy size={16} />
+            </Link>
             <button onClick={() => void deleteListing({ id: l.id })}>
               <Trash size={16} className="text-red-500" />
             </button>
             <button onClick={() => void postListing({ id: l.id })}>
-              <PlayCircle size={16} />
+              <PlayCircle size={16} className="text-primary" />
             </button>
             <button
               onClick={() => {
