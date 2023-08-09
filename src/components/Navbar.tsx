@@ -75,7 +75,7 @@ export default function Navbar() {
           </SignedIn>
           <SignedOut>
             <SignInButton>
-              <Button asChild variant="outline" size="icon">
+              <Button variant="outline" size="icon">
                 <LogIn className="h-[1.2rem] w-[1.2rem]" />
               </Button>
             </SignInButton>
