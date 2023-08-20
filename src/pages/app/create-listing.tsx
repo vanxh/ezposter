@@ -70,21 +70,22 @@ const Page: NextPage = () => {
       enabled: !!copyListing,
       onSuccess: (data) => {
         if (!data) return;
-        form.reset({
-          name: data.name,
-          description: data.description,
-          category: data.category,
-          platform: data.platform,
-          upc: data.upc,
-          price: data.priceInCents / 100,
-          shippingWithinDays: data.shippingWithinDays,
-          expiresWithinDays: data.expiresWithinDays,
-          tags: data.tags as string[],
-          images: data.images as string[],
-          autoPost: data.autoPost,
-        });
+        if (!form.getValues("name")) {
+          form.reset({
+            name: data.name,
+            description: data.description,
+            category: data.category,
+            platform: data.platform,
+            upc: data.upc,
+            price: data.priceInCents / 100,
+            shippingWithinDays: data.shippingWithinDays,
+            expiresWithinDays: data.expiresWithinDays,
+            tags: data.tags as string[],
+            images: data.images as string[],
+            autoPost: data.autoPost,
+          });
+        }
       },
-      refetchOnMount: false,
       refetchOnWindowFocus: false,
     }
   );
