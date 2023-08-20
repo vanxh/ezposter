@@ -70,11 +70,9 @@ export const listingRouter = createTRPCRouter({
       })
     )
     .query(async ({ ctx, input }) => {
-      const listing = await ctx.prisma.gameflipListing.findUnique({
+      return ctx.prisma.gameflipListing.findUnique({
         where: { id: input.id },
       });
-
-      return listing;
     }),
 
   create: premiumProcedure
@@ -97,6 +95,7 @@ export const listingRouter = createTRPCRouter({
         images: z.array(z.string()).max(5, {
           message: "You can only have up to 5 images",
         }),
+        autoPost: z.boolean().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -108,7 +107,7 @@ export const listingRouter = createTRPCRouter({
         throw new Error("You have reached the maximum number of listings.");
       }
 
-      const listing = await ctx.prisma.gameflipListing.create({
+      return ctx.prisma.gameflipListing.create({
         data: {
           ...input,
           user: {
@@ -118,8 +117,6 @@ export const listingRouter = createTRPCRouter({
           },
         },
       });
-
-      return listing;
     }),
 
   delete: protectedProcedure
@@ -164,15 +161,14 @@ export const listingRouter = createTRPCRouter({
         images: z.array(z.string()).max(5, {
           message: "You can only have up to 5 images",
         }),
+        autoPost: z.boolean().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const listing = await ctx.prisma.gameflipListing.update({
+      return ctx.prisma.gameflipListing.update({
         where: { id: input.id },
         data: input,
       });
-
-      return listing;
     }),
 
   enable: protectedProcedure
@@ -182,12 +178,10 @@ export const listingRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const listing = await ctx.prisma.gameflipListing.update({
+      return ctx.prisma.gameflipListing.update({
         where: { id: input.id },
         data: { autoPost: true },
       });
-
-      return listing;
     }),
 
   disable: protectedProcedure
@@ -197,12 +191,10 @@ export const listingRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const listing = await ctx.prisma.gameflipListing.update({
+      return ctx.prisma.gameflipListing.update({
         where: { id: input.id },
         data: { autoPost: false },
       });
-
-      return listing;
     }),
 
   import: gameflipProcedure
@@ -218,11 +210,7 @@ export const listingRouter = createTRPCRouter({
         gameflipId: ctx.user.gameflipId as string,
       });
 
-      const listing = await gfapi.getListing(
-        input.id.split("/").pop() as string
-      );
-
-      return listing;
+      return gfapi.getListing(input.id.split("/").pop() as string);
     }),
 
   post: gameflipProcedure
@@ -252,12 +240,7 @@ export const listingRouter = createTRPCRouter({
         gameflipId: ctx.user.gameflipId as string,
       });
 
-      const listingId = await gfapi.postListing(
-        listingQuery,
-        listing.images as string[]
-      );
-
-      return listingId;
+      return gfapi.postListing(listingQuery, listing.images as string[]);
     }),
 
   postCustomListing: gameflipProcedure
@@ -306,11 +289,6 @@ export const listingRouter = createTRPCRouter({
         gameflipId: ctx.user.gameflipId as string,
       });
 
-      const listingId = await gfapi.postListing(
-        listingQuery,
-        listing.images as string[]
-      );
-
-      return listingId;
+      return gfapi.postListing(listingQuery, listing.images as string[]);
     }),
 });
