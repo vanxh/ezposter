@@ -3,7 +3,7 @@
 import type z from "zod";
 import Speakeasy from "speakeasy";
 
-import { GAMEFLIP_API_BASE_URL } from "@/constants";
+import { GAMEFLIP_API_BASE_URL } from "../constants";
 import {
   type AuthProps,
   type KeyValuePair,
@@ -12,7 +12,7 @@ import {
   GameflipProfileSchema,
   GameflipListingSchema,
   type createListingQuery,
-} from "@/utils/gfapi";
+} from "../utils/gfapi";
 
 export default class GFApi {
   private gameflipApiKey: string;

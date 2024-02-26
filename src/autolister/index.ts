@@ -1,10 +1,10 @@
 import { type GameflipListing } from "@prisma/client";
 import { promisify } from "util";
 
-import { prisma } from "@/server/db";
-import GFApi from "@/lib/gfapi";
-import { isGameflipConnected, isPremium } from "@/utils/db";
-import { createListingQuery } from "@/utils/gfapi";
+import { prisma } from "../server/db";
+import GFApi from "../lib/gfapi";
+import { isGameflipConnected, isPremium } from "../utils/db";
+import { createListingQuery } from "../utils/gfapi";
 
 const wait = promisify(setTimeout);
 
