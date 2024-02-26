@@ -14,6 +14,8 @@ RUN if [ "$NODE_ENV" != "production" ]; then \
     bun test; \
     fi
 
+RUN prisma generate
+
 USER bun
 EXPOSE 3000/tcp
 ENTRYPOINT ["bun", "./src/autolister"]
