@@ -221,11 +221,11 @@ const syncUsersToQueue = async () => {
   }
 };
 
-const main = async () => {
-  await syncUsersToQueue();
+const main = () => {
+  void syncUsersToQueue();
   console.log("Auto lister started");
 
   setInterval(() => void syncUsersToQueue(), 3 * 60 * 1000);
 };
 
-await main();
+main();
