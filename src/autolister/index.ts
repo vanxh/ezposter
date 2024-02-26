@@ -228,4 +228,4 @@ const main = async () => {
   setInterval(() => void syncUsersToQueue(), 3 * 60 * 1000);
 };
 
-void main();
+await main();
