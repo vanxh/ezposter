@@ -16,4 +16,4 @@ RUN if [ "$NODE_ENV" != "production" ]; then \
 
 USER bun
 EXPOSE 3000/tcp
-ENTRYPOINT ["bun", "start"]
+ENTRYPOINT ["bun", "src/autolister"]
