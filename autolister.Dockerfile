@@ -14,7 +14,7 @@ RUN if [ "$NODE_ENV" != "production" ]; then \
     bun test; \
     fi
 
-RUN prisma generate
+RUN bunx prisma generate
 
 USER bun
 EXPOSE 3000/tcp
