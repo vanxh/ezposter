@@ -145,9 +145,9 @@ const autoPurge = async (userId: number) => {
       sort: "created:asc",
       visibility: "public",
       limit: "50",
-      created: `,${new Date(
-        Date.now() - user.purgeOlderThan * 60 * 1000
-      ).toISOString()}`,
+      // created: `,${new Date(
+      //   Date.now() - user.purgeOlderThan * 60 * 1000
+      // ).toISOString()}`,
     });
     console.log(
       `Auto purge job for ${user.id}: Found ${listings.length} listings`
