@@ -144,11 +144,14 @@ const autoPurge = async (userId: number) => {
       status: "onsale",
       sort: "created:asc",
       visibility: "public",
-      limit: "5",
+      limit: "50",
       created: `,${new Date(
         Date.now() - user.purgeOlderThan * 60 * 1000
       ).toISOString()}`,
     });
+    console.log(
+      `Auto purge job for ${user.id}: Found ${listings.length} listings`
+    );
 
     let nPurged = 0;
     for await (const listing of listings) {
@@ -182,7 +185,7 @@ const autoPurge = async (userId: number) => {
 
     AutoPurgeQueue.set(
       user.id,
-      setTimeout(() => void autoPurge(user.id), 1 * 60 * 1000)
+      setTimeout(() => void autoPurge(user.id), 2 * 60 * 1000)
     );
     console.log(
       `Auto purge job for ${user.id}: scheduled next purge in 1 minute`
@@ -217,7 +220,7 @@ const syncUsersToQueue = async () => {
         `Scheduled auto post for ${user.id} in ${nextPost / 1000} seconds`
       );
 
-      scheduleAutoPurge(user.id, 1 * 60 * 1000);
+      scheduleAutoPurge(user.id, 2 * 60 * 1000);
       console.log(`Scheduled auto purge for ${user.id} in 1 minute`);
     });
   } catch (e) {
