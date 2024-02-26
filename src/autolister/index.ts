@@ -165,7 +165,8 @@ const autoPurge = async (userId: number) => {
           }: ${e as string}`
         );
       }
-      await wait(250);
+      // await wait(250);
+      await new Promise((resolve) => setTimeout(resolve, 250));
     }
 
     await prisma.user.update({
