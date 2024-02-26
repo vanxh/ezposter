@@ -179,15 +179,19 @@ const autoPurge = async (userId: number) => {
     console.log(
       `Auto purge job for ${user.id}: Deleted ${listings.length} listings`
     );
+
+    AutoPurgeQueue.set(
+      user.id,
+      setTimeout(() => void autoPurge(user.id), 1 * 60 * 1000)
+    );
+    console.log(
+      `Auto purge job for ${user.id}: scheduled next purge in 1 minute`
+    );
   } catch (e) {
     console.error(`Auto purge job for ${userId} failed: ${e as string}`);
-  }
 
-  AutoPurgeQueue.set(
-    userId,
-    setTimeout(() => void autoPurge(userId), 1 * 60 * 1000)
-  );
-  console.log(`Auto purge job for ${userId}: scheduled next purge in 1 minute`);
+    AutoPurgeQueue.delete(userId);
+  }
 };
 
 const syncUsersToQueue = async () => {
