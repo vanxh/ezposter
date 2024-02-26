@@ -186,10 +186,10 @@ const autoPurge = async (userId: number) => {
 
     AutoPurgeQueue.set(
       user.id,
-      setTimeout(() => void autoPurge(user.id), 2 * 60 * 1000)
+      setTimeout(() => void autoPurge(user.id), 1 * 60 * 1000)
     );
     console.log(
-      `Auto purge job for ${user.id}: scheduled next purge in 2 minutes`
+      `Auto purge job for ${user.id}: scheduled next purge in 1 minute`
     );
   } catch (e) {
     console.error(`Auto purge job for ${userId} failed: ${e as string}`);
@@ -221,8 +221,8 @@ const syncUsersToQueue = async () => {
         `Scheduled auto post for ${user.id} in ${nextPost / 1000} seconds`
       );
 
-      scheduleAutoPurge(user.id, 2 * 60 * 1000);
-      console.log(`Scheduled auto purge for ${user.id} in 2 minutes`);
+      scheduleAutoPurge(user.id, 1 * 60 * 1000);
+      console.log(`Scheduled auto purge for ${user.id} in 1 minute`);
     });
   } catch (e) {
     console.error(`Failed to sync users to the queue: ${e as string}`);
