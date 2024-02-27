@@ -152,6 +152,11 @@ const autoPurge = async (userId: number) => {
 
     let nPurged = 0;
     for await (const listing of listings) {
+      const createdAt = new Date(listing.created).getTime();
+      const purgeOlderThan = Date.now() - user.purgeOlderThan * 60 * 1000;
+
+      if (createdAt > purgeOlderThan) continue;
+
       try {
         await gfapi.deleteListing(listing.id);
         nPurged++;
