@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { type User } from "@prisma/client";
 
 import {
   createTRPCRouter,
@@ -13,66 +12,8 @@ import {
   recommendedPostTime,
   recommendedPurgeTime,
 } from "@/utils/gfapi";
-import { isGameflipConnected, isPremium } from "@/utils/db";
+import { isPremium } from "@/utils/db";
 import { MIN_POST_INTERVAL_IN_SECONDS } from "@/constants";
-import AutoPostQueue from "@/pages/api/autopost";
-import AutoPurgeQueue from "@/pages/api/autopurge";
-
-const syncAutoPostQueue = async (user: User) => {
-  if (!user.autoPost || !isPremium(user) || !isGameflipConnected(user)) {
-    await AutoPostQueue.delete(`${user.id}`);
-  }
-
-  let autoPostJob = await AutoPostQueue.getById(`${user.id}`);
-
-  if (!autoPostJob) {
-    autoPostJob = await AutoPostQueue.enqueue(user.id, {
-      id: `${user.id}`,
-      repeat: {
-        every: user.postTime * 1000,
-      },
-    });
-  }
-
-  if (user.postTime * 1000 !== autoPostJob?.repeat?.every) {
-    await AutoPostQueue.enqueue(user.id, {
-      id: `${user.id}`,
-      override: true,
-      repeat: {
-        every: user.postTime * 1000,
-      },
-    });
-  }
-
-  return autoPostJob;
-};
-
-const syncAutoPurgeQueue = async (user: User) => {
-  if (!user.autoPost || !isPremium(user) || !isGameflipConnected(user)) {
-    await AutoPurgeQueue.delete(`${user.id}`);
-  }
-
-  let repeat = 8 * 60 * 1000;
-  if (user.postTime <= 120) {
-    repeat = 6 * 60 * 1000;
-  }
-  if (user.postTime <= 60) {
-    repeat = 4 * 60 * 1000;
-  }
-  if (user.postTime <= 30) {
-    repeat = 2 * 60 * 1000;
-  }
-
-  const autoPurgeJob = await AutoPurgeQueue.enqueue(user.id, {
-    id: `${user.id}`,
-    override: true,
-    repeat: {
-      every: repeat,
-    },
-  });
-
-  return autoPurgeJob;
-};
 
 export const userRouter = createTRPCRouter({
   listing: listingRouter,
@@ -114,9 +55,6 @@ export const userRouter = createTRPCRouter({
         },
       });
 
-      await syncAutoPostQueue(update);
-      await syncAutoPurgeQueue(update);
-
       return update;
     }),
 
@@ -155,9 +93,6 @@ export const userRouter = createTRPCRouter({
           gameflipId: gameflipProfile.owner,
         },
       });
-
-      await syncAutoPostQueue(update);
-      await syncAutoPurgeQueue(update);
 
       return {
         gameflipProfile,
@@ -214,9 +149,6 @@ export const userRouter = createTRPCRouter({
           usedById: ctx.user.id,
         },
       });
-
-      await syncAutoPostQueue(update);
-      await syncAutoPurgeQueue(update);
 
       return update;
     }),
